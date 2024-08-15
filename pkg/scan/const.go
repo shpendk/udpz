@@ -1,0 +1,8 @@
+package scan
+
+const (
+	CAPTURE_SNAP_LEN   = 262144
+	STATE_UNRESPONSIVE = 0
+	STATE_RESPONSIVE   = 1
+	STATE_CLOSED       = 2
+)
