@@ -38,6 +38,12 @@ var (
 	logFormat    string = "auto"
 	outputAppend bool   = true
 
+	// Proxy options
+	socks5Address  string
+	socks5User     string
+	socks5Password string
+	socks5Timeout  uint = 3000
+
 	// Constraints
 	supportedLogFormats = map[string]bool{
 		"json": true, "jsonl": true,
@@ -65,23 +71,32 @@ func init() {
 	rootCmd.Flags().StringVarP(&outputPath, "output", "o", outputPath, "Save results to file")
 	rootCmd.Flags().StringVarP(&logPath, "log", "O", logPath, "Output log messages to file")
 	rootCmd.Flags().BoolVarP(&outputAppend, "append", "a", outputAppend, "Append results to output file")
-	rootCmd.Flags().StringVarP(&outputFormat, "format", "f", outputFormat, "Output format [text, csv, tsv, json]")
+	rootCmd.Flags().StringVarP(&outputFormat, "format", "f", outputFormat, "Output format [text, pretty, csv, tsv, json, yaml, auto]")
 	rootCmd.Flags().StringVarP(&logFormat, "log-format", "L", logFormat, `Output log format [pretty, json, auto]`)
 
 	// Performance
-	rootCmd.Flags().UintVarP(&hostConcurrency, "host-tasks", "c", hostConcurrency, "Number of hosts to scan concurrently")
-	rootCmd.Flags().UintVarP(&portConcurrency, "port-tasks", "p", portConcurrency, "Concurrent probe tasks per host")
-	rootCmd.Flags().UintVarP(&retransmissions, "retries", "r", retransmissions, "Number of probe retransmissions")
+	rootCmd.Flags().UintVarP(&hostConcurrency, "host-tasks", "c", hostConcurrency, "Maximum Number of hosts to scan concurrently")
+	rootCmd.Flags().UintVarP(&portConcurrency, "port-tasks", "p", portConcurrency, "Number of Concurrent scan tasks per host")
+	rootCmd.Flags().UintVarP(&retransmissions, "retries", "r", retransmissions, "Number of probe retransmissions per probe")
 	rootCmd.Flags().UintVarP(&timeoutMs, "timeout", "t", timeoutMs, "UDP Probe timeout in milliseconds")
 
 	// DNS
 	rootCmd.Flags().BoolVarP(&scanAllAddresses, "all", "A", scanAllAddresses, "Scan all resolved addresses instead of just the first")
 
+	/*
+		TODO
+		// Proxy
+		rootCmd.Flags().StringVarP(&socks5Address, "socks", "S", socks5Address, "SOCKS5 proxy address as HOST:PORT")
+		rootCmd.Flags().StringVar(&socks5User, "socks-user", socks5User, "SOCKS5 proxy username")
+		rootCmd.Flags().StringVar(&socks5Password, "socks-pass", socks5Password, "SOCKS5 proxy password")
+		rootCmd.Flags().UintVar(&socks5Timeout, "socks-timeout", socks5Timeout, "SOCKS5 proxy timeout")
+	*/
+
 	// Logging
-	rootCmd.Flags().BoolVarP(&debug, "debug", "D", debug, "Enable debug logging")
-	rootCmd.Flags().BoolVarP(&trace, "trace", "T", trace, "Enable trace logging. Very noisy!")
-	rootCmd.Flags().BoolVarP(&quiet, "quiet", "Q", quiet, "Disable info logging and progress output")
-	rootCmd.Flags().BoolVarP(&silent, "silent", "S", silent, "Disable ALL logging")
+	rootCmd.Flags().BoolVarP(&debug, "debug", "D", debug, "Enable debug logging (Very noisy!)")
+	rootCmd.Flags().BoolVarP(&trace, "trace", "T", trace, "Enable trace logging (Very noisy!)")
+	rootCmd.Flags().BoolVarP(&quiet, "quiet", "q", quiet, "Disable info logging")
+	rootCmd.Flags().BoolVarP(&silent, "silent", "s", silent, "Disable ALL logging")
 }
 
 var rootCmd = &cobra.Command{
@@ -94,7 +109,7 @@ var rootCmd = &cobra.Command{
   ┗┛  ┻┛  ┣┛  ┗┛
 
   Author: Bryan McNulty (@bryanmcnulty)
-  Source: https://github.com/bryanmcnulty/udpz`,
+  Source: https://github.com/FalconOps-Cybersecurity/udpz`,
 
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, targets []string) (err error) {
@@ -173,13 +188,24 @@ var rootCmd = &cobra.Command{
 				Msg("Could not open log file for writing")
 		}
 
-		scanner := scan.NewUdpProbeScanner(
+		var scanner scan.UdpProbeScanner
+
+		if scanner, err = scan.NewUdpProbeScanner(
 			log,
+			scanAllAddresses,
 			hostConcurrency,
 			portConcurrency,
 			retransmissions,
 			time.Duration(timeoutMs)*time.Millisecond,
-			scanAllAddresses)
+			socks5Address,
+			socks5User,
+			socks5Password,
+			int(socks5Timeout)); err != nil {
+
+			log.Fatal().
+				Err(err).
+				Msg("Failed to initialize scanner")
+		}
 
 		var scanStartTime, scanEndTime time.Time
 

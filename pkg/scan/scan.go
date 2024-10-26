@@ -11,6 +11,7 @@ import (
 	"udpz/pkg/data"
 
 	"github.com/rs/zerolog"
+	//"github.com/txthinking/socks5"
 )
 
 func (sc *UdpProbeScanner) handleResult(pr PortResult) {
@@ -68,10 +69,12 @@ func (sc *UdpProbeScanner) ResolveTarget(targetSource string, hosts chan Host) (
 		host.Target = target
 
 		if ip4 := ip.To4(); ip4 != nil {
+
 			host.Type = "IPv4"
 			host.Host = ip4.String()
 
 		} else if ip16 := ip.To16(); ip16 != nil {
+
 			host.Type = "IPv6"
 			host.Host = fmt.Sprintf("[%s]", ip16)
 		}
@@ -100,7 +103,7 @@ func (sc *UdpProbeScanner) ResolveTarget(targetSource string, hosts chan Host) (
 		sc.Logger.Debug().
 			Str("type", target.Type).
 			Str("target", target.Target).
-			Str("address_type", host.Type).
+			Str("address_type", addrType).
 			IPAddr("ip", ip).
 			Str("cidr", ipNet.String()).
 			Msg("Target CIDR resolved")
@@ -129,7 +132,6 @@ func (sc *UdpProbeScanner) ResolveTarget(targetSource string, hosts chan Host) (
 
 		target.Type = "hostname"
 
-		// TODO: check if this handles hostnames correctly
 		if ips, err := net.LookupIP(targetSource); err == nil {
 
 			sc.Logger.Debug().
@@ -203,7 +205,25 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 		transport := "udp"
 		address := fmt.Sprintf("%s:%d", host.Host, port)
 
-		if conn, err = net.Dial(transport, address); err == nil {
+		if sc.useProxy {
+			sc.Logger.Trace().
+				Str("type", "(*socks5.Client).Dial").
+				Str("proxy", ""). //sc.proxy.Server).
+				Str("transport", transport).
+				Str("address", address).
+				Msg("(*socks5.Client).Dial(...)")
+
+			//conn, err = sc.proxy.Dial(transport, address)
+		} else {
+			sc.Logger.Trace().
+				Str("type", "net.Dial").
+				Str("transport", transport).
+				Str("address", address).
+				Msg("net.Dial(...)")
+
+			conn, err = net.Dial(transport, address)
+		}
+		if err == nil {
 			if err = conn.SetReadDeadline(time.Now().Add(sc.ReadTimeout)); err == nil {
 
 				response := make([]byte, 0x400)
@@ -218,17 +238,19 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 				conn.Write(payload)
 
 				if readLen, err = bufio.NewReader(conn).Read(response); err == nil {
-					result = PortResult{
-						Port:      port,
-						Transport: transport,
-						Host:      host,
-					}
+
 					sc.Logger.Trace().
 						Str("type", "connection.read").
 						Str("transport", transport).
 						Str("address", address).
 						Bytes("data", response).
 						Msg("(net.Conn).Read(data)")
+
+					result = PortResult{
+						Port:      port,
+						Transport: transport,
+						Host:      host,
+					}
 
 					if readLen > 0 {
 						result.Response = base64.StdEncoding.EncodeToString(response[:readLen])
@@ -303,7 +325,7 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 	totalCount = probeCount * (sc.Retransmissions + 1)
 
 	sc.Logger.Debug().
-		Uint("total_probe_count", totalCount).
+		Uint("total_probes", totalCount).
 		Msg("Calculated total probe count")
 
 	go func(wg *sync.WaitGroup, c chan Host) {
@@ -329,7 +351,6 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 	for host := range hosts {
 
 		host := host // Shadow variable
-
 		portWg := sync.WaitGroup{}
 		portSem := make(chan struct{}, sc.PortConcurrency)
 
@@ -426,17 +447,39 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 	hostWg.Wait()
 }
 
-func NewUdpProbeScanner(logger zerolog.Logger,
-	hostConcurrency uint, portConcurrency uint,
-	retransmissions uint, readTimeout time.Duration,
-	scanAllAddresses bool) (sc UdpProbeScanner) {
+func NewUdpProbeScanner(logger zerolog.Logger, scanAllAddresses bool,
+	hostConcurrency uint, portConcurrency uint, retransmissions uint, readTimeout time.Duration,
+	socks5Address string, socks5User string, socks5Password string, socks5Timeout int) (sc UdpProbeScanner, err error) {
 
 	sc.resultsLive = make(chan PortResult)
 	sc.resultsMap = make(map[string]map[uint16][]PortResult)
+
 	sc.HostConcurrency = hostConcurrency
 	sc.PortConcurrency = portConcurrency
-	sc.ReadTimeout = readTimeout
-	sc.Logger = logger
 	sc.Retransmissions = retransmissions
+	sc.ReadTimeout = readTimeout
+
+	sc.Logger = logger
+
+	if socks5Address != "" {
+
+		sc.useProxy = true
+		sc.Logger.Debug().
+			Str("address", socks5Address).
+			Str("user", socks5User).
+			Msg("Using SOCKS5 proxy")
+
+		if true {
+			//if sc.proxy, err = socks5.NewClient(
+			//	socks5Address, socks5User, socks5Password,
+			//	socks5Timeout, socks5Timeout); err != nil {
+
+			sc.Logger.Error().
+				Err(err).
+				Str("address", socks5Address).
+				Msg("Failed to initialize SOCKS5 proxy dialer")
+		}
+	}
+
 	return
 }

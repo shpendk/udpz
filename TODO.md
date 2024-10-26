@@ -3,13 +3,15 @@
 ## High Priority
 
 - Option to load targets from file
-- Provide explicit DNS resolvers
+- SOCKS5 proxy + credentials
+- Option to specify explicit DNS resolvers
+- Different performance defaults for Docker container (no ulimit constraint)
 
 ## Low Priority
 
 - Option to list probes
-- Add More Probes
 - Integrate tags
+- Add More Probes
 
 ## Complete ^-^
 

@@ -31,8 +31,7 @@ func (sc *UdpProbeScanner) SaveYAML(output *os.File) error {
 func (sc *UdpProbeScanner) SaveTable(format string, output *os.File) {
 
 	resultsTable := table.NewWriter()
-	//resultsTable.AppendHeader(table.Row{"Host", "Port", "Service", "Description"})
-	resultsTable.AppendHeader(table.Row{"Host", "Port", "Service", "Probes"})
+	resultsTable.AppendHeader(table.Row{"Host", "Port", "State", "Service", "Probes"})
 
 	for host, ports := range sc.resultsMap {
 		for port, results := range ports {
@@ -57,6 +56,7 @@ func (sc *UdpProbeScanner) SaveTable(format string, output *os.File) {
 				resultsTable.AppendRow(table.Row{
 					host,
 					fmt.Sprintf("%d/UDP", port),
+					"OPEN",
 					service,
 					strings.Join(probeNames, ",\n"),
 				})

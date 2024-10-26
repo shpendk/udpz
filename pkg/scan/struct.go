@@ -6,21 +6,24 @@ import (
 	"udpz/pkg/data"
 
 	"github.com/rs/zerolog"
+	//"github.com/txthinking/socks5"
 )
 
 type UdpProbeScanner struct {
-	HostConcurrency uint
-	PortConcurrency uint
-	ProbeCount      uint
-	Retransmissions uint
-	ReadTimeout     time.Duration
-	Logger          zerolog.Logger
+	HostConcurrency  uint
+	PortConcurrency  uint
+	ProbeCount       uint
+	Retransmissions  uint
+	scanAllAddresses bool
+	ReadTimeout      time.Duration
+
+	Logger zerolog.Logger
+	//proxy    *socks5.Client
+	useProxy bool
 
 	resultsLive chan PortResult
 	results     []PortResult
 	resultsMap  map[string]map[uint16][]PortResult
-
-	scanAllAddresses bool
 }
 
 type Target struct {
@@ -32,8 +35,7 @@ type Host struct {
 	Type   string `yaml:"type" json:"type"`
 	Host   string `yaml:"host" json:"host"`
 	Target Target `yaml:"target" json:"target"`
-
-	ip net.IP
+	ip     net.IP
 }
 
 type PortResult struct {
@@ -43,11 +45,4 @@ type PortResult struct {
 	Probe     data.UdpProbe   `yaml:"probe" json:"probe"`
 	Response  string          `yaml:"response" json:"response"`
 	Service   data.UdpService `yaml:"service" json:"service"`
-}
-
-type HostResult struct {
-	Host  Host
-	Ports PortResult
-	Start time.Time
-	End   time.Time
 }

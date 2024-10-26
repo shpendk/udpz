@@ -10,8 +10,6 @@ type UdpService struct {
 	Probes     []UdpProbe `yaml:"probes" json:"probes"`
 	Tags       []string   `yaml:"tags" json:"tags"`
 	References []string   `yaml:"references" json:"references"`
-
-	//Vendor      string `yaml:"vendor" json:"vendor"`
 }
 
 type UdpProbe struct {
