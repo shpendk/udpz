@@ -5,183 +5,438 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net"
-	"os"
 	"strings"
 	"sync"
 	"time"
 	"udpz/pkg/data"
 
-	"github.com/jedib0t/go-pretty/v6/progress"
+	"github.com/rs/zerolog"
 )
 
-type Host struct {
-	Addresses []net.IP
-	Target    string
-}
-
-type UdpProbeScanner struct {
-	Concurrency     uint
-	ProbeCount      int
-	Retransmissions int
-	ReadTimeout     time.Duration
-	ProgressWriter  progress.Writer
-	NoLog           bool
-	Output          *os.File
-
-	tasks       chan struct{}
-	resultsLive chan PortResult
-	results     []PortResult
-	errors      chan error
-}
-
-type PortResult struct {
-	Port      uint16        `yaml:"port" json:"port"`
-	Transport string        `yaml:"transport" json:"transport"`
-	Target    string        `yaml:"host" json:"host"`
-	Response  string        `yaml:"response" json:"response"`
-	Service   *data.Service `yaml:"service" json:"service"`
-}
-
-type ScanTaskRequest struct {
-	Target    string
-	Transport string
-	Port      int
-}
-
 func (sc *UdpProbeScanner) handleResult(pr PortResult) {
-	if !sc.NoLog {
-		sc.logPortResult(pr)
+
+	sc.Logger.Debug().
+		Str("target", pr.Host.Target.Target).
+		Str("host", fmt.Sprintf("%s:%s", pr.Host.Type, pr.Host.Host)).
+		Int("port", int(pr.Port)).
+		Str("service", pr.Service.Slug).
+		Str("probe", pr.Probe.Slug).
+		Str("response", pr.Response).
+		Msg("Received response")
+
+	if _, ok := sc.resultsMap[pr.Host.Host]; !ok {
+		sc.resultsMap[pr.Host.Host] = make(map[uint16][]PortResult)
 	}
-	sc.results = append(sc.results, pr)
+	if _, ok := sc.resultsMap[pr.Host.Host][pr.Port]; !ok {
+		sc.Logger.Info().
+			Str("target", pr.Host.Target.Target).
+			Str("host", fmt.Sprintf("%s:%s", pr.Host.Type, pr.Host.Host)).
+			Int("port", int(pr.Port)).
+			Str("service", pr.Service.Slug).
+			Str("probe", pr.Probe.Slug).
+			Msg("Discovered UDP service")
+
+		sc.results = append(sc.results, pr)
+		sc.resultsMap[pr.Host.Host][pr.Port] = []PortResult{pr}
+	} else {
+		sc.resultsMap[pr.Host.Host][pr.Port] = append(sc.resultsMap[pr.Host.Host][pr.Port], pr)
+	}
 }
 
 func (sc *UdpProbeScanner) Length() int {
 	return len(sc.results)
 }
 
+func (sc *UdpProbeScanner) ResolveTarget(targetSource string, hosts chan Host) (err error) {
+
+	sc.Logger.Trace().
+		Str("type", "call").
+		Str("function", "(*UdpProbeScanner).Scan").
+		Dict("arguments", zerolog.Dict().
+			Str("targetSource", targetSource).
+			Interface("hosts", hosts)).
+		Msg("(*UdpProbeScanner).Scan()")
+
+	var target Target
+	var host Host
+
+	target.Target = targetSource
+
+	if ip := net.ParseIP(targetSource); ip != nil {
+
+		target.Type = "IP"
+		host.Target = target
+
+		if ip4 := ip.To4(); ip4 != nil {
+			host.Type = "IPv4"
+			host.Host = ip4.String()
+
+		} else if ip16 := ip.To16(); ip16 != nil {
+			host.Type = "IPv6"
+			host.Host = fmt.Sprintf("[%s]", ip16)
+		}
+		sc.Logger.Debug().
+			Str("type", target.Type).
+			Str("target", target.Target).
+			Str("address_type", host.Type).
+			IPAddr("ip", ip).
+			Msg("Target resolved")
+
+		hosts <- host
+
+	} else if ip, ipNet, err := net.ParseCIDR(targetSource); err == nil {
+
+		var ipv6 bool
+
+		target.Type = "CIDR"
+		addrType := "Unknown"
+
+		if ip4 := ip.To4(); ip4 != nil {
+			addrType = "IPv4"
+		} else if ip16 := ip.To16(); ip16 != nil {
+			addrType = "IPv6"
+			ipv6 = true
+		}
+		sc.Logger.Debug().
+			Str("type", target.Type).
+			Str("target", target.Target).
+			Str("address_type", host.Type).
+			IPAddr("ip", ip).
+			Str("cidr", ipNet.String()).
+			Msg("Target CIDR resolved")
+
+		for ipNet.Contains(ip) {
+			host = Host{
+				Target: target,
+				Type:   addrType,
+				Host:   ip.String(),
+				ip:     ip,
+			}
+			if ipv6 {
+				host.Host = "[" + host.Host + "]" // Faster than fmt.Sprintf
+			}
+			hosts <- host
+
+			for j := len(ip) - 1; j >= 0; j-- {
+				ip[j]++
+				if ip[j] != 0 {
+					break
+				}
+			}
+		}
+
+	} else if REGEX_HOSTNAME.MatchString(targetSource) {
+
+		target.Type = "hostname"
+
+		// TODO: check if this handles hostnames correctly
+		if ips, err := net.LookupIP(targetSource); err == nil {
+
+			sc.Logger.Debug().
+				Str("target", targetSource).
+				Int("addresses", len(ips)).
+				Msg("Resolved target hostname")
+
+			for _, ip := range ips {
+
+				host = Host{Target: target}
+
+				if ip4 := ip.To4(); ip4 != nil {
+					host.Type = "IPv4"
+					host.Host = ip4.String()
+					host.ip = ip4
+
+				} else if ip16 := ip.To16(); ip16 != nil {
+					host.Type = "IPv6"
+					host.Host = fmt.Sprintf("[%s]", ip16)
+					host.ip = ip16
+				}
+				hosts <- host
+
+				if !sc.scanAllAddresses {
+					break
+				}
+			}
+		} else {
+			sc.Logger.Error().
+				Err(err).
+				Str("target", targetSource).
+				Msg("Failed to resolve target hostname")
+		}
+
+	} else {
+		sc.Logger.Error().
+			Err(err).
+			Str("target", targetSource).
+			Msg("Could not resolve target. Invalid format")
+	}
+
+	sc.Logger.Trace().
+		Str("type", "return").
+		Str("function", "(*UdpProbeScanner).Scan").
+		Dict("arguments", zerolog.Dict().
+			Str("targetSource", targetSource).
+			Interface("hosts", hosts)).
+		Dict("return", zerolog.Dict().
+			AnErr("err", err)).
+		Msg("return <- (*UdpProbeScanner).Scan()")
+
+	return nil
+}
+
 // TODO: ctx
-func (sc *UdpProbeScanner) scanTask(target string, port uint16, payload []byte, service *data.Service) (result PortResult, err error) {
+func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (result PortResult, err error) {
+
+	sc.Logger.Trace().
+		Str("type", "call").
+		Str("function", "(*UdpProbeScanner).scanTask").
+		Dict("arguments", zerolog.Dict().
+			Interface("host", host).
+			Uint16("port", port).
+			Bytes("payload", payload)).
+		Msg("(*UdpProbeScanner).scanTask(...)")
 
 	var conn net.Conn
 	var readLen int
 
-	if conn, err = net.Dial("udp", fmt.Sprintf("%s:%d", target, port)); err == nil {
-		if err = conn.SetReadDeadline(time.Now().Add(sc.ReadTimeout)); err == nil {
+	for {
+		transport := "udp"
+		address := fmt.Sprintf("%s:%d", host.Host, port)
 
-			response := make([]byte, 0x800)
-			conn.Write(payload)
+		if conn, err = net.Dial(transport, address); err == nil {
+			if err = conn.SetReadDeadline(time.Now().Add(sc.ReadTimeout)); err == nil {
 
-			if readLen, err = bufio.NewReader(conn).Read(response); err == nil {
-				result = PortResult{
-					Port:      port,
-					Transport: "udp",
-					Target:    target,
-					Service:   service,
-				}
-				if readLen > 0 {
-					result.Response = base64.StdEncoding.EncodeToString(response[:readLen])
+				response := make([]byte, 0x400)
+
+				sc.Logger.Trace().
+					Str("type", "connection.write").
+					Str("transport", transport).
+					Str("address", address).
+					Bytes("data", payload).
+					Msg("(net.Conn).Write(data)")
+
+				conn.Write(payload)
+
+				if readLen, err = bufio.NewReader(conn).Read(response); err == nil {
+					result = PortResult{
+						Port:      port,
+						Transport: transport,
+						Host:      host,
+					}
+					sc.Logger.Trace().
+						Str("type", "connection.read").
+						Str("transport", transport).
+						Str("address", address).
+						Bytes("data", response).
+						Msg("(net.Conn).Read(data)")
+
+					if readLen > 0 {
+						result.Response = base64.StdEncoding.EncodeToString(response[:readLen])
+					}
 				}
 			}
+			break
+		} else {
+			if strings.Contains(err.Error(), "connect: resource temporarily unavailable") {
+				sc.Logger.Debug().
+					Err(err).
+					Msg("Resource limit reached")
+				time.Sleep(10 * time.Millisecond)
+				continue
+			}
+			break
 		}
 	}
 
+	if sc.Logger.GetLevel().String() == zerolog.LevelTraceValue {
+		var loggedResult interface{}
+
+		if result.Transport == "" {
+			loggedResult = nil
+		} else {
+			loggedResult = result
+		}
+		sc.Logger.Trace().
+			Str("type", "return").
+			Str("function", "(*UdpProbeScanner).scanTask").
+			Dict("arguments", zerolog.Dict().
+				Interface("host", host).
+				Uint16("port", port).
+				Bytes("payload", payload)).
+			Dict("return", zerolog.Dict().
+				AnErr("err", err).
+				Interface("result", loggedResult)).
+			Msg("return <- (*UdpProbeScanner).scanTask()")
+	}
 	return
 }
 
-func (sc *UdpProbeScanner) Scan(targets []string) {
+func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 
-	var wg sync.WaitGroup
+	sc.Logger.Trace().
+		Str("type", "call").
+		Str("function", "(*UdpProbeScanner).Scan").
+		Dict("arguments", zerolog.Dict().
+			Strs("targetSourceList", targetSourceList)).
+		Msg("(*UdpProbeScanner).Scan(...)")
 
-	sem := make(chan struct{}, sc.Concurrency)
-	total := len(targets) * data.NUM_PAYLOADS * (1 + sc.Retransmissions)
+	var hostWg sync.WaitGroup
+	//var portWg sync.WaitGroup
+	var probeCount uint
+	var totalCount uint
 
-	tracker := &progress.Tracker{
-		Message:          "Probing targets",
-		DeferStart:       false,
-		ExpectedDuration: 4 * time.Second,
-		Total:            int64(total),
-		Units:            progress.UnitsDefault,
+	hostSem := make(chan struct{}, sc.HostConcurrency)
+	//portSem := make(chan struct{}, sc.PortConcurrency)
+	hosts := make(chan Host)
+
+	sc.Logger.Debug().
+		Int("service_count", len(data.UDP_SERVICES)).
+		Msg("Calculating unique probe count")
+
+	for _, service := range data.UDP_SERVICES {
+		probeCount += uint(len(service.Ports) * len(service.Probes))
 	}
-	sc.ProgressWriter.AppendTracker(tracker)
+	sc.Logger.Debug().
+		Uint("probe_count", probeCount).
+		Msg("Calculated unique probe count")
+
+	totalCount = probeCount * (sc.Retransmissions + 1)
+
+	sc.Logger.Debug().
+		Uint("total_probe_count", totalCount).
+		Msg("Calculated total probe count")
+
+	go func(wg *sync.WaitGroup, c chan Host) {
+
+		sc.Logger.Debug().
+			Int("target_count", len(targetSourceList)).
+			Msg("Resolving targets")
+
+		for _, ts := range targetSourceList {
+			sc.ResolveTarget(ts, c)
+		}
+		wg.Wait()
+		close(c)
+
+	}(&hostWg, hosts)
 
 	go func() {
-		sm := make(map[string]map[uint16]bool)
 		for r := range sc.resultsLive {
-
-			if _, ok := sm[r.Target]; !ok {
-				sm[r.Target] = make(map[uint16]bool)
-			} else if sm[r.Target][r.Port] {
-				continue // Ignore duplicates
-			}
 			sc.handleResult(r)
-			sm[r.Target][r.Port] = true
 		}
 	}()
 
-	for _, target := range targets {
-		sc.logInfo("Scanning target: %s", target)
+	for host := range hosts {
 
-		if addr := net.ParseIP(target); addr != nil && addr.To4() == nil {
-			target = fmt.Sprintf("[%s]", target)
-		}
+		host := host // Shadow variable
 
-		for port, probes := range data.PROBES_ALL {
-			var portStatus uint8
+		portWg := sync.WaitGroup{}
+		portSem := make(chan struct{}, sc.PortConcurrency)
 
-			for _, probe := range probes {
-				for _, payload := range probe.Payloads {
+		hostSem <- struct{}{}
+		hostWg.Add(1)
 
-					sem <- struct{}{}
-					wg.Add(1)
+		go func() {
 
-					go func(target string, port uint16, payload []byte, service *data.Service, portStatus *uint8, tracker *progress.Tracker) {
+			defer func() {
+				hostWg.Done()
+				<-hostSem
+			}()
 
-						defer func() {
-							wg.Done()
-							<-sem
-						}()
+			var portStatus uint8 = STATE_UNRESPONSIVE
 
-						for i := 0; i <= sc.Retransmissions; i++ {
-							if *portStatus != STATE_UNRESPONSIVE {
-								tracker.Increment(1)
-							}
-							if result, err := sc.scanTask(target, port, payload, service); err != nil {
-								if strings.Contains(err.Error(), "connection refused") {
-									//tracker.Increment(int64(sc.Retransmissions - i + 1))
-									*portStatus = STATE_CLOSED
-									break
-								} else if strings.Contains(err.Error(), "i/o timeout") {
-									tracker.Increment(1)
-								} else {
-									tracker.IncrementWithError(1)
-									sc.errors <- err
+			for _, service := range data.UDP_SERVICES {
+				for _, port := range service.Ports {
+					for _, probe := range service.Probes {
+
+						probe := probe
+
+						portSem <- struct{}{}
+						portWg.Add(1)
+
+						go func(wg *sync.WaitGroup,
+							h Host, port uint16, probe data.UdpProbe,
+							service *data.UdpService, portStatus *uint8) {
+
+							defer func() {
+								wg.Done()
+								<-portSem
+							}()
+
+							if probeBytes, err := base64.StdEncoding.DecodeString(probe.EncodedData); err == nil {
+								for i := 0; i <= int(sc.Retransmissions); i++ {
+
+									if *portStatus == STATE_CLOSED {
+
+										sc.Logger.Debug().
+											Str("target", h.Target.Target).
+											Str("host", h.Host).
+											Uint16("port", port).
+											Msg("Skipping closed port")
+									}
+
+									if result, err := sc.scanTask(h, port, probeBytes); err != nil {
+
+										if strings.Contains(err.Error(), "connection refused") {
+											*portStatus = STATE_CLOSED
+
+											sc.Logger.Debug().
+												Str("target", h.Target.Target).
+												Str("host", h.Host).
+												Uint16("port", port).
+												Msg("Port closed")
+
+										} else if strings.Contains(err.Error(), "i/o timeout") {
+											sc.Logger.Debug().
+												Str("target", h.Target.Target).
+												Str("host", h.Host).
+												Uint16("port", port).
+												Str("probe", probe.Slug).
+												Msg("Port unresponsive")
+
+										} else {
+											sc.Logger.Error().
+												Err(err).
+												Str("target", h.Target.Target).
+												Str("host", h.Host).
+												Uint16("port", port).
+												Msg("Error in scan task")
+										}
+									} else {
+										result.Service = data.UDP_SERVICES[probe.Service]
+										result.Probe = probe
+										sc.resultsLive <- result
+										*portStatus = STATE_RESPONSIVE
+									}
 								}
 							} else {
-								tracker.Increment(1)
-								sc.resultsLive <- result
-								*portStatus = STATE_RESPONSIVE
+								sc.Logger.Error().
+									Interface("probe", probe).
+									Err(err).
+									Msg("Failed to decode probe data")
 							}
-						}
-					}(target, port, payload, &probe.Service, &portStatus, tracker)
+						}(&portWg, host, port, probe, &service, &portStatus)
+					}
 				}
 			}
-		}
+			portWg.Wait()
+		}()
 	}
-	wg.Wait()
-	for !tracker.IsDone() {
-		time.Sleep(5 * time.Millisecond)
-	}
+
+	hostWg.Wait()
 }
 
-func NewUdpProbeScanner(concurrency uint, retransmissions uint, readTimeout time.Duration,
-	progressWriter progress.Writer) (sc UdpProbeScanner) {
+func NewUdpProbeScanner(logger zerolog.Logger,
+	hostConcurrency uint, portConcurrency uint,
+	retransmissions uint, readTimeout time.Duration,
+	scanAllAddresses bool) (sc UdpProbeScanner) {
 
-	sc.tasks = make(chan struct{}, concurrency)
 	sc.resultsLive = make(chan PortResult)
-
-	sc.Concurrency = concurrency
+	sc.resultsMap = make(map[string]map[uint16][]PortResult)
+	sc.HostConcurrency = hostConcurrency
+	sc.PortConcurrency = portConcurrency
 	sc.ReadTimeout = readTimeout
-	sc.ProgressWriter = progressWriter
-	sc.Retransmissions = int(retransmissions)
+	sc.Logger = logger
+	sc.Retransmissions = retransmissions
 	return
 }

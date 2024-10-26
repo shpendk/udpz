@@ -7,11 +7,24 @@ import (
 	"strings"
 
 	"github.com/jedib0t/go-pretty/v6/table"
+	"gopkg.in/yaml.v3"
 )
 
-func (sc *UdpProbeScanner) SaveJson(output *os.File) {
+func (sc *UdpProbeScanner) SaveJson(output *os.File) error {
 	if data, err := json.Marshal(&sc.results); err == nil {
-		output.Write(data) // TODO: make sure this adds line break
+		output.Write(data)
+		return nil
+	} else {
+		return err
+	}
+}
+
+func (sc *UdpProbeScanner) SaveYAML(output *os.File) error {
+	if data, err := yaml.Marshal(&sc.results); err == nil {
+		output.Write(data)
+		return nil
+	} else {
+		return err
 	}
 }
 
@@ -19,15 +32,37 @@ func (sc *UdpProbeScanner) SaveTable(format string, output *os.File) {
 
 	resultsTable := table.NewWriter()
 	//resultsTable.AppendHeader(table.Row{"Host", "Port", "Service", "Description"})
-	resultsTable.AppendHeader(table.Row{"Host", "Port", "Service"})
+	resultsTable.AppendHeader(table.Row{"Host", "Port", "Service", "Probes"})
 
-	for _, result := range sc.results {
-		resultsTable.AppendRow(table.Row{
-			result.Target,
-			fmt.Sprintf("%s/%d", strings.ToUpper(result.Transport), result.Port),
-			result.Service.Name,
-			//result.Service.Description,
-		})
+	for host, ports := range sc.resultsMap {
+		for port, results := range ports {
+			resultMap := make(map[string][]PortResult)
+
+			for _, result := range results {
+				if _, ok := resultMap[result.Service.NameShort]; !ok {
+					resultMap[result.Service.NameShort] = []PortResult{}
+				}
+				resultMap[result.Service.NameShort] = append(resultMap[result.Service.NameShort], result)
+			}
+			for service, results := range resultMap {
+				probeNamesMap := make(map[string]bool)
+				probeNames := []string{}
+
+				for _, result := range results {
+					if stat, ok := probeNamesMap[result.Probe.Name]; !(ok && stat) {
+						probeNames = append(probeNames, result.Probe.Name)
+						probeNamesMap[result.Probe.Name] = true
+					}
+				}
+				resultsTable.AppendRow(table.Row{
+					host,
+					fmt.Sprintf("%d/UDP", port),
+					service,
+					strings.Join(probeNames, ",\n"),
+				})
+			}
+		}
+		resultsTable.AppendSeparator()
 	}
 	resultsTable.SetOutputMirror(output)
 	if format == "text" || format == "txt" {

@@ -9,44 +9,79 @@ import (
 
 	"udpz/pkg/scan"
 
-	"github.com/jedib0t/go-pretty/v6/progress"
+	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 )
 
 var (
 	// Scan options
-	concurrency     uint = 60
-	timeoutMs       uint = 2000
+	hostConcurrency uint = 10
+	portConcurrency uint = 50
+	timeoutMs       uint = 3000
 	retransmissions uint = 2
 
-	// Misc options
-	noLog bool
+	// DNS options
+	scanAllAddresses bool = true
+
+	// Logging options
+	quiet  bool = false // Disable info logging output (non-errors)
+	silent bool = false // Disable logging entirely
+
+	info  bool = true // Default log level
+	debug bool = false
+	trace bool = false
 
 	// Output options
 	outputPath   string
-	outputFormat string = "text"
+	logPath      string
+	outputFormat string = "auto"
+	logFormat    string = "auto"
 	outputAppend bool   = true
 
 	// Constraints
-	supportedFormats = map[string]bool{
-		"text":   true,
-		"txt":    true,
+	supportedLogFormats = map[string]bool{
+		"json": true, "jsonl": true,
+		"pretty": true,
+		"auto":   true,
+	}
+	supportedOutputFormats = map[string]bool{
+		"text": true, "txt": true,
+		"yaml": true, "yml": true,
+		"json": true, "jsonl": true,
 		"csv":    true,
 		"tsv":    true,
 		"pretty": true,
-		"json":   true,
+		"auto":   true,
 	}
 )
 
 func init() {
+
+	rootCmd.Flags().SortFlags = false
 	rootCmd.InitDefaultVersionFlag()
-	rootCmd.PersistentFlags().BoolVarP(&outputAppend, "append", "a", outputAppend, "Append results to output file")
-	rootCmd.PersistentFlags().StringVarP(&outputFormat, "format", "f", outputFormat, "Output format [text, csv, tsv]")
-	rootCmd.PersistentFlags().StringVarP(&outputPath, "output", "o", outputPath, "Save results to file")
-	rootCmd.PersistentFlags().UintVarP(&concurrency, "threads", "c", concurrency, "Number of goroutines to use for scanning")
-	rootCmd.PersistentFlags().UintVarP(&retransmissions, "retries", "r", retransmissions, "Number of probe retransmissions")
-	rootCmd.PersistentFlags().UintVarP(&timeoutMs, "timeout", "t", timeoutMs, "UDP Probe timeout in milliseconds")
-	rootCmd.PersistentFlags().BoolVarP(&noLog, "no-log", "n", noLog, "Disable logging and progress output")
+	rootCmd.InitDefaultCompletionCmd()
+
+	// Output
+	rootCmd.Flags().StringVarP(&outputPath, "output", "o", outputPath, "Save results to file")
+	rootCmd.Flags().StringVarP(&logPath, "log", "O", logPath, "Output log messages to file")
+	rootCmd.Flags().BoolVarP(&outputAppend, "append", "a", outputAppend, "Append results to output file")
+	rootCmd.Flags().StringVarP(&outputFormat, "format", "f", outputFormat, "Output format [text, csv, tsv, json]")
+	rootCmd.Flags().StringVarP(&logFormat, "log-format", "L", logFormat, `Output log format [pretty, json, auto]`)
+
+	// Performance
+	rootCmd.Flags().UintVarP(&hostConcurrency, "host-tasks", "c", hostConcurrency, "Number of hosts to scan concurrently")
+	rootCmd.Flags().UintVarP(&portConcurrency, "port-tasks", "p", portConcurrency, "Concurrent probe tasks per host")
+	rootCmd.Flags().UintVarP(&retransmissions, "retries", "r", retransmissions, "Number of probe retransmissions")
+	rootCmd.Flags().UintVarP(&timeoutMs, "timeout", "t", timeoutMs, "UDP Probe timeout in milliseconds")
+
+	// DNS
+	rootCmd.Flags().BoolVarP(&scanAllAddresses, "all", "A", scanAllAddresses, "Scan all resolved addresses instead of just the first")
+
+	// Logging
+	rootCmd.Flags().BoolVarP(&debug, "debug", "D", debug, "Enable debug logging")
+	rootCmd.Flags().BoolVarP(&trace, "trace", "T", trace, "Enable trace logging. Very noisy!")
+	rootCmd.Flags().BoolVarP(&quiet, "quiet", "Q", quiet, "Disable info logging and progress output")
+	rootCmd.Flags().BoolVarP(&silent, "silent", "S", silent, "Disable ALL logging")
 }
 
 var rootCmd = &cobra.Command{
@@ -65,13 +100,20 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, targets []string) (err error) {
 
 		var outputFile *os.File
+		var log zerolog.Logger
+		var logFile *os.File
 		var outputFlags int = os.O_WRONLY | os.O_CREATE
+		var logFileFlags int = os.O_WRONLY | os.O_CREATE | os.O_APPEND
+
 		outputFormat = strings.ToLower(outputFormat)
 
-		if _, ok := supportedFormats[outputFormat]; !ok {
-			return fmt.Errorf("invalid output format: %s", outputFormat)
+		if sup, ok := supportedOutputFormats[outputFormat]; !ok || !sup {
+			return errors.New("invalid output format: " + outputFormat)
 		}
-		if concurrency < 1 {
+		if sup, ok := supportedLogFormats[logFormat]; !ok || !sup {
+			return errors.New("invalid log format: " + logFormat)
+		}
+		if portConcurrency < 1 || hostConcurrency < 1 {
 			return errors.New("concurrency value must be > 0")
 		}
 		if timeoutMs < 1 {
@@ -81,41 +123,113 @@ var rootCmd = &cobra.Command{
 			outputFlags |= os.O_APPEND
 		}
 
-		pw := progress.NewWriter()
-		pw.SetTrackerPosition(progress.PositionRight)
-		pw.SetMessageLength(15)
-		pw.SetOutputWriter(os.Stderr)
-		pw.SetNumTrackersExpected(1)
-		pw.SetUpdateFrequency(10 * time.Millisecond)
-		pw.SetAutoStop(true)
-		go pw.Render()
-
-		scanner := scan.NewUdpProbeScanner(concurrency, retransmissions, time.Duration(timeoutMs)*time.Millisecond, pw)
-
-		scanner.Scan(targets)
-		for pw.IsRenderInProgress() {
-			time.Sleep(5 * time.Millisecond)
+		if silent {
+			zerolog.SetGlobalLevel(zerolog.Disabled)
+		} else if quiet {
+			zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+		} else if trace {
+			zerolog.SetGlobalLevel(zerolog.TraceLevel)
+		} else if debug {
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		} else if info {
+			zerolog.SetGlobalLevel(zerolog.InfoLevel)
 		}
+
+		zerolog.TimeFieldFormat = zerolog.TimeFormatUnixNano
+
+		if logPath == "" {
+			log = zerolog.New(os.Stderr).
+				With().
+				Timestamp().
+				Caller().
+				Logger()
+			if logFormat == "auto" || logFormat == "pretty" {
+				log = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+			}
+		} else if logFile, err = os.OpenFile(logPath, logFileFlags, 0o644); err == nil {
+
+			defer logFile.Close()
+			log = zerolog.New(logFile).
+				With().
+				Timestamp().
+				Caller().
+				Logger()
+			if logFormat == "pretty" {
+				log = log.Output(zerolog.ConsoleWriter{Out: logFile})
+			}
+
+		} else {
+			log = zerolog.New(os.Stderr).
+				With().
+				Timestamp().
+				Caller().
+				Logger()
+			if logFormat == "auto" || logFormat == "pretty" {
+				log = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+			}
+			log.Error().
+				AnErr("error", err).
+				Str("log_path", logPath).
+				Msg("Could not open log file for writing")
+		}
+
+		scanner := scan.NewUdpProbeScanner(
+			log,
+			hostConcurrency,
+			portConcurrency,
+			retransmissions,
+			time.Duration(timeoutMs)*time.Millisecond,
+			scanAllAddresses)
+
+		var scanStartTime, scanEndTime time.Time
+
+		log.Info().
+			Msg("Starting scanner")
+
+		scanStartTime = time.Now()
+		scanner.Scan(targets)
+		scanEndTime = time.Now()
+
+		log.Info().
+			Time("start", scanStartTime).
+			Time("end", scanEndTime).
+			TimeDiff("duration", scanEndTime, scanStartTime).
+			Msg("Scan complete")
+
 		if scanner.Length() > 0 {
+
 			if outputPath == "" {
 				outputFile = os.Stdout
+				if outputFormat == "auto" {
+					outputFormat = "pretty"
+				}
+
 			} else if outputFile, err = os.OpenFile(outputPath, outputFlags, 0o644); err == nil {
+				if outputFormat == "auto" {
+					outputFormat = "json"
+				}
 				defer outputFile.Close()
+
 			} else {
-				fmt.Fprintf(os.Stderr, "Could not open output file for writing: %s", outputPath)
+				log.Error().
+					AnErr("error", err).
+					Str("outputPath", outputPath).
+					Msg("Could not open output file for writing")
 				outputFile = os.Stdout
+				if outputFormat == "auto" {
+					outputFormat = "pretty"
+				}
 			}
-			if outputFormat == "json" {
+			if outputFormat == "json" || outputFormat == "jsonl" {
+				log.Info().
+					Str("format", "json")
 				scanner.SaveJson(outputFile)
-			} else if outputFormat == "yml" {
-				// TODO
+			} else if outputFormat == "yml" || outputFormat == "yaml" {
+				scanner.SaveYAML(outputFile)
 			} else {
 				scanner.SaveTable(outputFormat, outputFile)
 			}
-		} else {
-			fmt.Fprintln(os.Stderr, "Could not identify any UDP ports/services")
 		}
-
 		return
 	},
 }
