@@ -19,6 +19,7 @@ var (
 			Probes: []UdpProbe{
 				{
 					Slug:        "ard-generic",
+					Name:        "ARD generic",
 					Service:     "ard",
 					EncodedData: "ABQAAQM=",
 				},
@@ -44,7 +45,7 @@ var (
 			Probes: []UdpProbe{
 				{
 					Slug:        "bacnet-readpropertymultiple",
-					Name:        "ReadPropertyMultiple request",
+					Name:        "BACNet ReadPropertyMultiple request",
 					Service:     "bacnet",
 					EncodedData: "gQoAJQEEAgUBDgwCAAAAHgkMCRwJLAk4CTkJOglGCU0JeAl5Hw==",
 				},
@@ -69,6 +70,7 @@ var (
 			Probes: []UdpProbe{
 				{
 					Slug:        "chargen-generic",
+					Name:        "CharGen generic",
 					Service:     "chargen",
 					EncodedData: "AQ==",
 				},
@@ -90,6 +92,7 @@ var (
 			Probes: []UdpProbe{
 				{
 					Slug:        "winframe-generic",
+					Name:        "WinFrame generic",
 					Service:     "winframe",
 					EncodedData: "HgABMAL9qOMAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
 				},
@@ -105,7 +108,7 @@ var (
 		},
 		"coap": {
 			Slug:        "coap",
-			NameShort:   "COAP",
+			NameShort:   "CoAP",
 			Name:        "Constrained Application Protocol (CoAP)",
 			Description: `CoAP is a specialized web transfer protocol for use with constrained nodes and constrained (low-power,lossy) networks often comprised of 8-bit microcontrollers with limited memory and ROM.`,
 			Ports: []uint16{
@@ -114,7 +117,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Name:        "coap-generic",
+					Slug:        "coap-generic",
+					Name:        "CoAP generic",
 					Service:     "coap",
 					EncodedData: "QAF9cLsud2VsbC1rbm93bgRjb3Jl",
 				},
@@ -139,7 +143,7 @@ var (
 			Probes: []UdpProbe{
 				{
 					Slug:        "db2-getaddr",
-					Name:        "GETADDR Request",
+					Name:        "DB2 GETADDR Request",
 					Service:     "db2",
 					EncodedData: "REIyR0VUQUREUgBTUUwwODAxMAA=",
 				},
@@ -729,7 +733,7 @@ var (
 				},
 				{
 					Slug:        "snmp-v2c",
-					Name:        "SNMPv2 get-request",
+					Name:        "SNMPv2c get-request",
 					Service:     "snmp",
 					EncodedData: "MCYCAQEEBnB1YmxpY6EZAgTcY8KaAgEAAgEAMAswCQYFKwYBAgEFAA==",
 				},
@@ -861,7 +865,7 @@ var (
 			Slug:        "wdbrpc",
 			NameShort:   "WDBRPC",
 			Name:        "VxWorks Wind Debug Agent ONCRPC",
-			Description: `WDBRPC is associated with the target agent, a debugging and monitoring component of the VxWorks operating system. The target agent allows for debugging and remote control of a VxWorks-based system.`, // TODO
+			Description: `WDBRPC is associated with the target agent, a debugging and monitoring component of the VxWorks operating system. The target agent allows for debugging and remote control of a VxWorks-based system.`,
 			Ports: []uint16{
 				17185,
 			},
@@ -997,8 +1001,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "ike-TODO",
-					Name:        "IKE TODO request",
+					Slug:        "ike-generic",
+					Name:        "IKE generic",
 					Service:     "ike",
 					EncodedData: "W15kwD6ZtREAAAAAAAAAAAEQAgAAAAAAAAABUAAAATQAAAABAAAAAQAAASgBAQAIAwAAJAEB",
 				},
@@ -1022,8 +1026,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "radius-TODO",
-					Name:        "RADIUS TODO request",
+					Slug:        "radius-generic",
+					Name:        "RADIUS generic",
 					Service:     "radius",
 					EncodedData: "AWcAV0C2ZNv11oGyrb0XaVFRGMgBB3N0ZXZlAhLbxsS3WL4U8AWzh3yeL7YBBAbAqAAcBQYAAAB7UBJfD4ZH6Mib2IE2Qmj80EUyTwwCZgAKAXN0ZXZl",
 				},
@@ -1152,8 +1156,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "l2tp-TODO",
-					Name:        "L2TP TODO request",
+					Slug:        "l2tp-generic",
+					Name:        "L2TP generic",
 					Service:     "l2tp",
 					EncodedData: "yAIAawAAAAAAAAAAgAgAAAAAAAGACAAAAAIBAIAKAAAAAwAAAAOACgAAAAQAAAAAgAgAAAAGBpCAEAAAAAcxMDkuNi4xLjcygBMAAAAIeGVsZXJhbmNlLmNvbYAIAAAACUoygAgAAAAKAAQ=",
 				},
@@ -1177,8 +1181,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "nfs-TODO",
-					Name:        "NFS TODO",
+					Slug:        "nfs-generic",
+					Name:        "NFS generic",
 					Service:     "nfs",
 					EncodedData: "ZcpyKAAAAAAAAAACAAGGowAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
 				},
@@ -1201,8 +1205,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "slp-TODO",
-					Name:        "SLP TODO",
+					Slug:        "slp-generic",
+					Name:        "SLP generic",
 					Service:     "slp",
 					EncodedData: "AgEAADYgAAAAAAABAAJlbgAAABVzZXJ2aWNlOnNlcnZpY2UtYWdlbnQAB2RlZmF1bHQAAAAA",
 				},
@@ -1225,8 +1229,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "hart-ip-TODO",
-					Name:        "HART-IP TODO",
+					Slug:        "hart-ip-generic",
+					Name:        "HART-IP generic",
 					Service:     "hart-ip",
 					EncodedData: "AQAAAAACAA0BAAB1MA==",
 				},
@@ -1251,8 +1255,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "hid-discovery-TODO",
-					Name:        "HID Discovery TODO",
+					Slug:        "hid-discovery-generic",
+					Name:        "HID Discovery generic",
 					Service:     "hid-discovery",
 					EncodedData: "ZGlzY292ZXI7MDEzOw==",
 				},
@@ -1276,8 +1280,8 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "pcworx-TODO",
-					Name:        "PCWorx TODO",
+					Slug:        "pcworx-generic",
+					Name:        "PCWorx generic",
 					Service:     "pcworx",
 					EncodedData: "AQEAGgAAAAB4gAADAAxJQkVUSDAxTjBfTQA=",
 				},
@@ -1311,7 +1315,7 @@ var (
 					Slug:        "steam-hltv",
 					NameShort:   "Steam HLTV",
 					Name:        "Steam (Valve gaming platform) Half-Life TV",
-					Description: `Half-Life TV offers the ability to have an unlimited number of spectators watching online games. They can follow the game just like they would as a spectator on the game server.`, // TODO
+					Description: `Half-Life TV offers the ability to have an unlimited number of spectators watching online games. They can follow the game just like they would as a spectator on the game server.`,
 					References: []string{
 						"https://www.speedguide.net/port.php?port=27015",
 						"https://help.steampowered.com/en/faqs/view/558D-FD60-531D-98BC",
