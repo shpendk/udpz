@@ -12,7 +12,7 @@ UDPz aims to fill this gap by providing a robust solution that can be easily int
 ## Features
 
 - **Concurrent Scanning**: Utilizes goroutines and channels to perform flexible concurrent scans, significantly speeding up the scanning process.
-- **Structured Logging**: Uses `zerolog` for detailed and structured logging, making it easier to analyze scan results.
+- **Structured Logging**: Uses [zerolog](https://github.com/rs/zerolog) for detailed and structured logging, making it easier to analyze scan results.
 - **Flexible Target Resolution**: Supports loading IP addresses, CIDR ranges, and hostnames from arguments, or from a file.
 - **Customizable Probes**: Allows for the definition of custom probes for different UDP services.
 - **Error Handling**: Gracefully handles errors during scanning, ensuring the process continues even if some targets fail.
@@ -38,8 +38,12 @@ docker build --tag="udpz" --network="host" .
 
 3. Run the Docker container:
 ```sh
-docker run --rm --network="host" --name="udpz" --volume="$PWD:/output" -it udpz [flags] [targets ...]
+alias udpz='sudo docker run --rm --network="host" --name="udpz" --volume="$PWD:/output" -it udpz'
+udpz [flags] [targets ...]
 ```
+
+> [!TIP]
+> When using the docker image with file I/O, make sure to utilize Docker volumes to properly interact with files on the host filesystem.
 
 ### Standard Installation
 
