@@ -11,9 +11,9 @@ UDPz aims to fill this gap by providing a robust solution that can be easily int
 
 ## Features
 
-- **Concurrent Scanning**: Utilizes goroutines and channels to perform concurrent scans, significantly speeding up the process.
+- **Concurrent Scanning**: Utilizes goroutines and channels to perform flexible concurrent scans, significantly speeding up the scanning process.
 - **Structured Logging**: Uses `zerolog` for detailed and structured logging, making it easier to analyze scan results.
-- **Flexible Target Resolution**: Supports IP addresses, CIDR ranges, and hostnames, resolving them to their respective IPs.
+- **Flexible Target Resolution**: Supports loading IP addresses, CIDR ranges, and hostnames from arguments, or from a file.
 - **Customizable Probes**: Allows for the definition of custom probes for different UDP services.
 - **Error Handling**: Gracefully handles errors during scanning, ensuring the process continues even if some targets fail.
 
@@ -63,7 +63,7 @@ go build
 
 ```
 Usage:
-  udpz [flags] [targets ...]
+  udpz [flags] [IP|hostname|CIDR|file ...]
 
 Flags:
   -v, --version             version for udpz
@@ -77,12 +77,17 @@ Flags:
   -r, --retries uint        Number of probe retransmissions per probe (default 2)
   -t, --timeout uint        UDP Probe timeout in milliseconds (default 3000)
   -A, --all                 Scan all resolved addresses instead of just the first (default true)
-  -D, --debug               Enable debug logging (Loud!)
-  -T, --trace               Enable trace logging (Loud!)
-  -Q, --quiet               Disable info logging
-  -S, --silent              Disable ALL logging
+  -D, --debug               Enable debug logging (Very noisy!)
+  -T, --trace               Enable trace logging (Very noisy!)
+  -q, --quiet               Disable info logging
+  -s, --silent              Disable ALL logging
   -h, --help                help for udpz
 ```
+
+The target argument(s) can be an IP address, hostname, CIDR, or file(s) containing targets.
+
+
+### Examples
 
 - Simple UDP scan of a single host with prettyfied output and no informational logging:
 ```

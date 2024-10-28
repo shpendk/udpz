@@ -2,10 +2,9 @@
 
 ## High Priority
 
-- Option to load targets from file
-- SOCKS5 proxy + credentials
+- option for SOCKS5 proxy + credentials
 - Option to specify explicit DNS resolvers
-- Different performance defaults for Docker container (no ulimit constraint)
+- Different performance defaults for Docker container (highler max open file descriptors)
 
 ## Low Priority
 
@@ -17,3 +16,4 @@
 
 - Target CIDR support
 - Expand IPv6 support
+- Option to load targets from file

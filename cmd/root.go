@@ -100,7 +100,7 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:     "udpz [flags] [targets ...]",
+	Use:     "udpz [flags] [IP|hostname|CIDR|file ...]",
 	Short:   "Speedy probe-oriented UDP port scanner",
 	Version: "0.0.1-beta",
 	Long: `
@@ -247,8 +247,6 @@ var rootCmd = &cobra.Command{
 				}
 			}
 			if outputFormat == "json" || outputFormat == "jsonl" {
-				log.Info().
-					Str("format", "json")
 				scanner.SaveJson(outputFile)
 			} else if outputFormat == "yml" || outputFormat == "yaml" {
 				scanner.SaveYAML(outputFile)
