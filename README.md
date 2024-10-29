@@ -7,7 +7,7 @@ UDPz is a speedy, portable, cross-platform UDP port scanner written in Go.
 UDPz was created to address the need for a fast and efficient tool to scan UDP services across multiple hosts. 
 Traditional network scanning tools like `nmap` often provide slower UDP scanning capabilities, which can be a bottleneck for network administrators and security professionals.
 
-UDPz aims to fill this gap by providing a robust solution that can be easily integrated into existing workflows due to his logging capabilities and flexible output options.
+UDPz aims to fill this gap by providing a robust solution that can be easily integrated into existing workflows due to it's logging capabilities and flexible output options.
 
 ## Features
 
