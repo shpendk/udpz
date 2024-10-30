@@ -16,7 +16,7 @@ import (
 var (
 	// Scan options
 	hostConcurrency uint = 10
-	portConcurrency uint = 50
+	portConcurrency uint = 100
 	timeoutMs       uint = 3000
 	retransmissions uint = 2
 
@@ -42,7 +42,7 @@ var (
 	socks5Address  string
 	socks5User     string
 	socks5Password string
-	socks5Timeout  uint = 3000
+	socks5Timeout  uint = uint(3 * time.Second)
 
 	// Constraints
 	supportedLogFormats = map[string]bool{
@@ -83,14 +83,11 @@ func init() {
 	// DNS
 	rootCmd.Flags().BoolVarP(&scanAllAddresses, "all", "A", scanAllAddresses, "Scan all resolved addresses instead of just the first")
 
-	/*
-		TODO
-		// Proxy
-		rootCmd.Flags().StringVarP(&socks5Address, "socks", "S", socks5Address, "SOCKS5 proxy address as HOST:PORT")
-		rootCmd.Flags().StringVar(&socks5User, "socks-user", socks5User, "SOCKS5 proxy username")
-		rootCmd.Flags().StringVar(&socks5Password, "socks-pass", socks5Password, "SOCKS5 proxy password")
-		rootCmd.Flags().UintVar(&socks5Timeout, "socks-timeout", socks5Timeout, "SOCKS5 proxy timeout")
-	*/
+	// Proxy
+	rootCmd.Flags().StringVarP(&socks5Address, "socks", "S", socks5Address, "SOCKS5 proxy address as HOST:PORT")
+	rootCmd.Flags().StringVar(&socks5User, "socks-user", socks5User, "SOCKS5 proxy username")
+	rootCmd.Flags().StringVar(&socks5Password, "socks-pass", socks5Password, "SOCKS5 proxy password")
+	rootCmd.Flags().UintVar(&socks5Timeout, "socks-timeout", socks5Timeout, "SOCKS5 proxy timeout")
 
 	// Logging
 	rootCmd.Flags().BoolVarP(&debug, "debug", "D", debug, "Enable debug logging (Very noisy!)")

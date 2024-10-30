@@ -48,9 +48,9 @@ func (sc *UdpProbeScanner) SaveTable(format string, output *os.File) {
 				probeNames := []string{}
 
 				for _, result := range results {
-					if stat, ok := probeNamesMap[result.Probe.Name]; !(ok && stat) {
+					if stat, ok := probeNamesMap[result.Probe.Slug]; !(ok && stat) {
 						probeNames = append(probeNames, result.Probe.Name)
-						probeNamesMap[result.Probe.Name] = true
+						probeNamesMap[result.Probe.Slug] = true
 					}
 				}
 				resultsTable.AppendRow(table.Row{
