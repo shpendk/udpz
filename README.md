@@ -14,6 +14,7 @@ UDPz aims to fill this gap by providing a robust solution that can be easily int
 - **Concurrent Scanning**: Utilizes goroutines and channels to perform flexible concurrent scans, significantly speeding up the scanning process.
 - **Structured Logging**: Uses [zerolog](https://github.com/rs/zerolog) for detailed and structured logging, making it easier to analyze scan results.
 - **Flexible Target Resolution**: Supports loading IP addresses, CIDR ranges, and hostnames from arguments, or from a file.
+- **Proxy Support**: Offers support for SOCKS5 servers that implement UDP tunneling.
 - **Customizable Probes**: Allows for the definition of custom probes for different UDP services.
 - **Error Handling**: Gracefully handles errors during scanning, ensuring the process continues even if some targets fail.
 
@@ -70,22 +71,26 @@ Usage:
   udpz [flags] [IP|hostname|CIDR|file ...]
 
 Flags:
-  -v, --version             version for udpz
-  -o, --output string       Save results to file
-  -O, --log string          Output log messages to file
-  -a, --append              Append results to output file (default true)
-  -f, --format string       Output format [text, pretty, csv, tsv, json, yaml, auto] (default "auto")
-  -L, --log-format string   Output log format [pretty, json, auto] (default "auto")
-  -c, --host-tasks uint     Maximum Number of hosts to scan concurrently (default 10)
-  -p, --port-tasks uint     Number of Concurrent scan tasks per host (default 50)
-  -r, --retries uint        Number of probe retransmissions per probe (default 2)
-  -t, --timeout uint        UDP Probe timeout in milliseconds (default 3000)
-  -A, --all                 Scan all resolved addresses instead of just the first (default true)
-  -D, --debug               Enable debug logging (Very noisy!)
-  -T, --trace               Enable trace logging (Very noisy!)
-  -q, --quiet               Disable info logging
-  -s, --silent              Disable ALL logging
-  -h, --help                help for udpz
+  -v, --version              version for udpz
+  -o, --output string        Save results to file
+  -O, --log string           Output log messages to file
+  -a, --append               Append results to output file (default true)
+  -f, --format string        Output format [text, pretty, csv, tsv, json, yaml, auto] (default "auto")
+  -L, --log-format string    Output log format [pretty, json, auto] (default "auto")
+  -c, --host-tasks uint      Maximum Number of hosts to scan concurrently (default 10)
+  -p, --port-tasks uint      Number of Concurrent scan tasks per host (default 100)
+  -r, --retries uint         Number of probe retransmissions per probe (default 2)
+  -t, --timeout uint         UDP Probe timeout in milliseconds (default 3000)
+  -A, --all                  Scan all resolved addresses instead of just the first (default true)
+  -S, --socks string         SOCKS5 proxy address as HOST:PORT
+      --socks-user string    SOCKS5 proxy username
+      --socks-pass string    SOCKS5 proxy password
+      --socks-timeout uint   SOCKS5 proxy timeout (default 3000000000)
+  -D, --debug                Enable debug logging (Very noisy!)
+  -T, --trace                Enable trace logging (Very noisy!)
+  -q, --quiet                Disable info logging
+  -s, --silent               Disable ALL logging
+  -h, --help                 help for udpz
 ```
 
 The target argument(s) can be an IP address, hostname, CIDR, or file(s) containing targets.
