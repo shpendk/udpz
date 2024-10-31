@@ -42,7 +42,7 @@ var (
 	socks5Address  string
 	socks5User     string
 	socks5Password string
-	socks5Timeout  uint = uint(3 * time.Second)
+	socks5Timeout  uint = 3000
 
 	// Constraints
 	supportedLogFormats = map[string]bool{
@@ -87,7 +87,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&socks5Address, "socks", "S", socks5Address, "SOCKS5 proxy address as HOST:PORT")
 	rootCmd.Flags().StringVar(&socks5User, "socks-user", socks5User, "SOCKS5 proxy username")
 	rootCmd.Flags().StringVar(&socks5Password, "socks-pass", socks5Password, "SOCKS5 proxy password")
-	rootCmd.Flags().UintVar(&socks5Timeout, "socks-timeout", socks5Timeout, "SOCKS5 proxy timeout")
+	rootCmd.Flags().UintVar(&socks5Timeout, "socks-timeout", socks5Timeout, "SOCKS5 proxy timeout in milliseconds")
 
 	// Logging
 	rootCmd.Flags().BoolVarP(&debug, "debug", "D", debug, "Enable debug logging (Very noisy!)")
@@ -197,7 +197,7 @@ var rootCmd = &cobra.Command{
 			socks5Address,
 			socks5User,
 			socks5Password,
-			int(socks5Timeout)); err != nil {
+			int(socks5Timeout*uint(time.Millisecond))); err != nil {
 
 			log.Fatal().
 				Err(err).
