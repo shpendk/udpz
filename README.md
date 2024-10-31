@@ -85,7 +85,7 @@ Flags:
   -S, --socks string         SOCKS5 proxy address as HOST:PORT
       --socks-user string    SOCKS5 proxy username
       --socks-pass string    SOCKS5 proxy password
-      --socks-timeout uint   SOCKS5 proxy timeout (default 3000000000)
+      --socks-timeout uint   SOCKS5 proxy timeout in milliseconds (default 3000)
   -D, --debug                Enable debug logging (Very noisy!)
   -T, --trace                Enable trace logging (Very noisy!)
   -q, --quiet                Disable info logging
