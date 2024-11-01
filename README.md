@@ -14,10 +14,12 @@ UDPz aims to fill this gap by providing a robust solution that can be easily int
 - **Concurrent Scanning**: Utilizes goroutines and channels to perform flexible concurrent scans, significantly speeding up the scanning process.
 - **Structured Logging**: Uses [zerolog](https://github.com/rs/zerolog) for detailed and structured logging, making it easier to analyze scan results.
 - **Flexible Target Resolution**: Supports loading IP addresses, CIDR ranges, and hostnames from arguments, or from a file.
-- **Proxy Support**: Offers support for SOCKS5 servers that implement UDP tunneling.
+- **Proxy Support**: Offers SOCKS5 proxy support for UDP tunneling.
 - **Customizable Probes**: Allows for the definition of custom probes for different UDP services.
 - **Error Handling**: Gracefully handles errors during scanning, ensuring the process continues even if some targets fail.
 
+> [!WARNING]
+> The SOCKS5 client will only work with SOCKS5 servers that implement UDP support.
 
 ## Installation
 
