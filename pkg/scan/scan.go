@@ -3,6 +3,7 @@ package scan
 import (
 	"bufio"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net"
 	"strings"
@@ -163,7 +164,7 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 	return
 }
 
-func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
+func (sc *UdpProbeScanner) Scan(targetSourceList []string, slugs []string, tags []string) (err error) {
 
 	sc.Logger.Trace().
 		Str("type", "call").
@@ -173,30 +174,24 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 		Msg("(*UdpProbeScanner).Scan(...)")
 
 	var hostWg sync.WaitGroup
-	//var portWg sync.WaitGroup
-	var probeCount uint
-	var totalCount uint
+
+	services, probes := sc.Broker.Filter(slugs, tags)
+
+	probeCount := uint(len(probes))
+	serviceCount := uint(len(services))
+
+	if probeCount == 0 {
+		sc.Logger.Debug().
+			Strs("slugs", slugs).
+			Strs("tags", tags).
+			Msg("No probes to run")
+		return errors.New("no matching probes")
+	}
+
+	totalCount := probeCount * (sc.Retransmissions + 1)
 
 	hostSem := make(chan struct{}, sc.HostConcurrency)
-	//portSem := make(chan struct{}, sc.PortConcurrency)
 	hosts := make(chan Host)
-
-	sc.Logger.Debug().
-		Int("service_count", len(data.UDP_SERVICES)).
-		Msg("Calculating unique probe count")
-
-	for _, service := range data.UDP_SERVICES {
-		probeCount += uint(len(service.Ports) * len(service.Probes))
-	}
-	sc.Logger.Debug().
-		Uint("probe_count", probeCount).
-		Msg("Calculated unique probe count")
-
-	totalCount = probeCount * (sc.Retransmissions + 1)
-
-	sc.Logger.Debug().
-		Uint("total_probes", totalCount).
-		Msg("Calculated total probe count")
 
 	go func(wg *sync.WaitGroup, c chan Host) {
 
@@ -213,10 +208,17 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 	}(&hostWg, hosts)
 
 	go func() {
+		// Handle live results
 		for r := range sc.resultsLive {
 			sc.handleResult(r)
 		}
 	}()
+
+	sc.Logger.Info().
+		Uint("service_count", serviceCount).
+		Uint("probe_count", probeCount).
+		Uint("packet_count", totalCount).
+		Msg("Starting scan")
 
 	for host := range hosts {
 
@@ -234,9 +236,10 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 				<-hostSem
 			}()
 
-			for _, service := range data.UDP_SERVICES {
+			for _, service := range services {
 				for _, port := range service.Ports {
 
+					// Port is unresponsive unless a response is received (duh)
 					var portStatus uint8 = STATE_UNRESPONSIVE
 
 					for _, probe := range service.Probes {
@@ -295,7 +298,6 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 												Msg("Error in scan task")
 										}
 									} else {
-										service := data.UDP_SERVICES[probe.Service]
 										result.Service = service.ToOutput()
 										result.Probe = probe.ToOutput()
 
@@ -318,9 +320,10 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string) {
 	}
 
 	hostWg.Wait()
+	return
 }
 
-func NewUdpProbeScanner(logger zerolog.Logger, scanAllAddresses bool,
+func NewUdpProbeScanner(logger zerolog.Logger, broker data.UdpDataBroker, scanAllAddresses bool,
 	hostConcurrency uint, portConcurrency uint, retransmissions uint, readTimeout time.Duration,
 	socks5Address string, socks5User string, socks5Password string, socks5Timeout int) (sc UdpProbeScanner, err error) {
 
@@ -334,6 +337,7 @@ func NewUdpProbeScanner(logger zerolog.Logger, scanAllAddresses bool,
 	sc.Retransmissions = retransmissions
 	sc.ReadTimeout = readTimeout
 
+	sc.Broker = broker
 	sc.Logger = logger
 
 	if socks5Address != "" {

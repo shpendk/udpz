@@ -17,7 +17,9 @@ type UdpProbeScanner struct {
 	scanAllAddresses bool
 	ReadTimeout      time.Duration
 
-	Logger   zerolog.Logger
+	Logger zerolog.Logger
+	Broker data.UdpDataBroker
+
 	proxy    *socks5.Client
 	useProxy bool
 

@@ -7,7 +7,7 @@ Credits:
 package data
 
 var (
-	UDP_SERVICES = map[string]UdpService{
+	UDP_SERVICES_DEFAULT = map[string]UdpService{
 		"ard": {
 			Slug:        "ard",
 			NameShort:   "ARD",
@@ -18,7 +18,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "ard-generic",
+					Slug:        "ard:generic",
 					Name:        "ARD generic",
 					Service:     "ard",
 					EncodedData: "ABQAAQM=",
@@ -44,7 +44,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "bacnet-readpropertymultiple",
+					Slug:        "bacnet:readpropertymultiple",
 					Name:        "BACNet ReadPropertyMultiple request",
 					Service:     "bacnet",
 					EncodedData: "gQoAJQEEAgUBDgwCAAAAHgkMCRwJLAk4CTkJOglGCU0JeAl5Hw==",
@@ -69,7 +69,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "chargen-generic",
+					Slug:        "chargen:generic",
 					Name:        "CharGen generic",
 					Service:     "chargen",
 					EncodedData: "AQ==",
@@ -91,7 +91,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "winframe-generic",
+					Slug:        "winframe:generic",
 					Name:        "WinFrame generic",
 					Service:     "winframe",
 					EncodedData: "HgABMAL9qOMAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -117,7 +117,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "coap-generic",
+					Slug:        "coap:generic",
 					Name:        "CoAP generic",
 					Service:     "coap",
 					EncodedData: "QAF9cLsud2VsbC1rbm93bgRjb3Jl",
@@ -142,7 +142,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "db2-getaddr",
+					Slug:        "db2:getaddr",
 					Name:        "DB2 GETADDR Request",
 					Service:     "db2",
 					EncodedData: "REIyR0VUQUREUgBTUUwwODAxMAA=",
@@ -167,7 +167,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "dnp3-requestlinkstatus",
+					Slug:        "dnp3:requestlinkstatus",
 					Name:        "DNP3 Request Link Status",
 					Service:     "dnp3",
 					EncodedData: "BWQFyQAAAAA2TAVkBckBAAAA3o4FZAXJAgAAAJ+EBWQFyQMAAAB3RgVkBckEAAAAHZAFZAXJBQAAAPVSBWQFyQYAAAC0WAVkBckHAAAAXJoFZAXJCAAAABm5BWQFyQkAAADxewVkBckKAAAAsHEFZAXJCwAAAFizBWQFyQwAAAAyZQVkBckNAAAA2qcFZAXJDgAAAJutBWQFyQ8AAABzbwVkBckQAAAAEesFZAXJEQAAAPkpBWQFyRIAAAC4IwVkBckTAAAAUOEFZAXJFAAAADo3BWQFyRUAAADS9QVkBckWAAAAk/8FZAXJFwAAAHs9BWQFyRgAAAA+HgVkBckZAAAA1twFZAXJGgAAAJfWBWQFyRsAAAB/FAVkBckcAAAAFcIFZAXJHQAAAP0ABWQFyR4AAAC8CgVkBckfAAAAVMgFZAXJIAAAAAFPBWQFySEAAADpjQVkBckiAAAAqIcFZAXJIwAAAEBFBWQFySQAAAAqkwVkBcklAAAAwlEFZAXJJgAAAINbBWQFyScAAABrmQVkBckoAAAALroFZAXJKQAAAMZ4BWQFySoAAACHcgVkBckrAAAAb7AFZAXJLAAAAAVmBWQFyS0AAADtpAVkBckuAAAArK4FZAXJLwAAAERsBWQFyTAAAAAm6AVkBckxAAAAzioFZAXJMgAAAI8gBWQFyTMAAABn4gVkBck0AAAADTQFZAXJNQAAAOX2BWQFyTYAAACk/AVkBck3AAAATD4FZAXJOAAAAAkdBWQFyTkAAADh3wVkBck6AAAAoNUFZAXJOwAAAEgXBWQFyTwAAAAiwQ==",
@@ -191,19 +191,19 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "dns-ns",
+					Slug:        "dns:ns",
 					Name:        "DNS NS query",
 					Service:     "dns",
 					EncodedData: "/I4BIAABAAAAAAABAAACAAEAACkE0AAAAAAADAAKAAg9I8AK+dL7Og==",
 				},
 				{
-					Slug:        "dns-a-localhost",
-					Name:        "DNS A query (localhost)",
+					Slug:        "dns:a",
+					Name:        "DNS A query",
 					Service:     "dns",
 					EncodedData: "AAABIAABAAAAAAABCWxvY2FsaG9zdAAAAQABAAApBNAAAAAAAAwACgAIl+OWjXjQ82o=",
 				},
 				{
-					Slug:        "dns-version",
+					Slug:        "dns:version",
 					Name:        "DNS version.bind query",
 					Service:     "dns",
 					EncodedData: "nkABIAABAAAAAAABB3ZlcnNpb24EYmluZAAAEAADAAApBNAAAAAAAAwACgAI0How5NhZLqA=",
@@ -229,7 +229,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "ipmi-rmcp",
+					Slug:        "ipmi:rmcp",
 					Name:        "IPMI RMCP",
 					Service:     "ipmi",
 					EncodedData: "BgD/BwAAAAAAAAAAAAkgGMiBADiOBLU=",
@@ -254,7 +254,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "cldap-rootdse",
+					Slug:        "cldap:rootdse",
 					Name:        "CLDAP root DSE query",
 					Service:     "cldap",
 					EncodedData: "MIQAAAAtAgEBY4QAAAAkBAAKAQAKAQACAQACAQABAQCHC29iamVjdGNsYXNzMIQAAAAAAAo=",
@@ -281,7 +281,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "mdns-reverse",
+					Slug:        "mdns:reverse",
 					Name:        "mDNS reverse lookup",
 					Service:     "mdns",
 					EncodedData: "G2wBIAABAAAAAAABATEBMAEwAzEyNwdpbi1hZGRyBGFycGEAAAwAAQAAKQTQAAAAAAAMAAoACH8B+nAODI6w",
@@ -305,13 +305,13 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "memcache-version",
+					Slug:        "memcache:version",
 					Name:        "Memcache Version",
 					Service:     "memcache",
 					EncodedData: "AAEAAAABAAB2ZXJzaW9uDQo=",
 				},
 				{
-					Slug:        "memcache-stats",
+					Slug:        "memcache:stats",
 					Name:        "Memcache Stats",
 					Service:     "memcache",
 					EncodedData: "Wk0AAAABAABzdGF0cyBpdGVtcw0K",
@@ -336,7 +336,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "melsec-q-getcpuinfo",
+					Slug:        "melsec-q:getcpuinfo",
 					Name:        "MELSEC-Q Get CPU Info",
 					Service:     "melsec-q",
 					EncodedData: "VwAAAAAREQcAAP//AwAA/gMAABQAHAgKCAAAAAAAAAAEAQEBAAAAAAE=",
@@ -362,7 +362,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "moxa-nport-enum",
+					Slug:        "moxa-nport:enum",
 					Name:        "Moxa NPort Enum",
 					Service:     "moxa-nport",
 					EncodedData: "AQAACAAAAAA=",
@@ -387,7 +387,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "mssql-ping",
+					Slug:        "mssql:ping",
 					Name:        "MSSQL ping",
 					Service:     "mssql",
 					EncodedData: "Ag==",
@@ -414,7 +414,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "nat-pmp-address",
+					Slug:        "nat-pmp:address",
 					Name:        "NAT-PMP address request",
 					Service:     "nat-pmp",
 					EncodedData: "AAA=",
@@ -439,7 +439,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "netbios-stat",
+					Slug:        "netbios:stat",
 					Name:        "NetBIOS stat",
 					Service:     "netbios",
 					EncodedData: "5dgAAAABAAAAAAAAIENLQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBAAAhAAE=",
@@ -464,14 +464,14 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "ntp-v4",
+					Slug:        "ntp:v4",
 					Name:        "NTPv4 request",
 					Service:     "ntp",
 					EncodedData: "4wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOqVvTC5xaAA",
 				},
 				// TODO: NTPv3?
 				{
-					Slug:        "ntp-v2",
+					Slug:        "ntp:v2",
 					Name:        "NTPv2 request",
 					Service:     "ntp",
 					EncodedData: "FwADKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -496,7 +496,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "fins-data-read",
+					Slug:        "fins:data-read",
 					Name:        "FINS DATA READ request",
 					Service:     "fins",
 					EncodedData: "gAACAAAAAGMA7wUBAA==",
@@ -520,7 +520,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "openvpn-hardresetclient",
+					Slug:        "openvpn:hardresetclient",
 					Name:        "OpenVPN HARD RESET CLIENT",
 					Service:     "openvpn",
 					EncodedData: "OBISEhISEhISAAAAAAA4sSbe",
@@ -545,7 +545,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "pca-info",
+					Slug:        "pca:info",
 					Name:        "PCAnywhere info",
 					Service:     "pca",
 					EncodedData: "TlE=",
@@ -570,7 +570,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "portmap-rpc-dump",
+					Slug:        "portmap:rpc-dump",
 					Name:        "Portmap RPC dump",
 					Service:     "portmap",
 					EncodedData: "Gqn/4QAAAAAAAAACAAGGoAAAAAIAAAAEAAAAAAAAAAAAAAAAAAAAAA==",
@@ -595,7 +595,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "qotd-ping",
+					Slug:        "qotd:ping",
 					Name:        "QOTD Ping",
 					Service:     "qotd",
 					EncodedData: "AQ==",
@@ -619,7 +619,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "rdpudp-syn",
+					Slug:        "rdpudp:syn",
 					Name:        "RDPUDP SYN request",
 					Service:     "rdpudp",
 					EncodedData: "ABTzAQoAZOBkAAEAFgMBAQ0BAAEJAwPUmdmCR1xpMEnfSS4Kq19KqKxXDKSUEZg2q9cBPS7ZyyAfjKhwF1mj1yNFjjVDUIh48nRapZ+vTAQFyOk5yw32HwAoEwITAcAswCvAMMAvwCTAI8AowCfACsAJwBTAEwCdAJwAPQA8ADUALwEAAJgAAAAcABoAABd2bTM5LWFkMjAyNC53ZWJlcmxhYi5kZQArAAkIAwQDAwMCAwEADQAaABgIBAgFCAYEAQUBAgEEAwUDAgMCAgYBBgMAIwAAAAoACAAGAB0AFwAYADMAJgAkAB0AIFnI0PSm/+SwN1qcEZeq6qHUJm607CRYzXJwMj7WxzchADEAAAAXAAD/AQABAAAtAAIBAQ==",
@@ -646,7 +646,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "rip-v2-request",
+					Slug:        "rip:v2",
 					Name:        "RIPv2 request",
 					Service:     "rip",
 					EncodedData: "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ",
@@ -670,7 +670,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "ripng-request",
+					Slug:        "ripng:request",
 					Name:        "RIPng request",
 					Service:     "ripng",
 					EncodedData: "AQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ",
@@ -696,7 +696,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "sip-invite",
+					Slug:        "sip:invite",
 					Name:        "SIP INVITE request",
 					Service:     "sip",
 					EncodedData: "yA4UfjOgPGEEUNIagQCgB4hkEQAAHgI3ACFFuAI1OPwAuDkRepvZABVBVJKH3S8xNjAwMA0KYT1mbXRwOjEwNCBtb2RlLXNldD0wLDEsMjsgbW9kZS1jaGFuZ2UtY2FwYWJpbGl0eT0yOyBtYXgtcmVkPTANCmE9cnRwbWFwOjExMCBBTVItV0IvMTYwMDANCmE9Zm10cDoxMTAgb2N0ZXQtYWxpZ249MTsgbW9kZS1zZXQ9MCwxLDI7IG1vZGUtY2hhbmdlLWNhcGFiaWxpdHk9MjsgbWF4LXJlZD0wDQphPXJ0cG1hcDo5IEc3MjIvODAwMA0KYT1ydHBtYXA6MTAyIEFNUi84MDAwDQphPWZtdHA6MTAyIG1vZGUtY2hhbmdlLWNhcGFiaWxpdHk9MjsgbWF4LXJlZD0wDQphPXJ0cG1hcDoxMDggQU1SLzgwMDANCmE9Zm10cDoxMDggb2N0ZXQtYWxpZ249MTsgbW9kZS1jaGFuZ2UtY2FwYWJpbGl0eT0yOyBtYXgtcmVkPTANCmE9cnRwbWFwOjEwNSB0ZWxlcGhvbmUtZXZlbnQvMTYwMDANCmE9Zm10cDoxMDUgMC0xNQ0KYT1ydHBtYXA6MTAwIHRlbGVwaG9uZS1ldmVudC84MDAwDQphPWZtdHA6MTAwIDAtMTUNCmE9cHRpbWU6MjANCmE9bWF4cHRpbWU6NDANCmE9c2VuZHJlY3YNCmE9cnRwbWFwOjggUENNQS84MDAwDQphPXJ0cG1hcDowIFBDTVUvODAwMA0K",
@@ -726,19 +726,19 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "snmp-v1",
+					Slug:        "snmp:v1-get-request",
 					Name:        "SNMPv1 get-request",
 					Service:     "snmp",
 					EncodedData: "MCkCAQAEBnB1YmxpY6AcAgRWWtxdAgEAAgEAMA4wDAYIKwYBAgEBAQAFAA==",
 				},
 				{
-					Slug:        "snmp-v2c",
+					Slug:        "snmp:v2c-get-request",
 					Name:        "SNMPv2c get-request",
 					Service:     "snmp",
 					EncodedData: "MCYCAQEEBnB1YmxpY6EZAgTcY8KaAgEAAgEAMAswCQYFKwYBAgEFAA==",
 				},
 				{
-					Slug:        "snmp-v3",
+					Slug:        "snmp:v3-get-request",
 					Name:        "SNMPv3 get-request",
 					Service:     "snmp",
 					EncodedData: "MDoCAQMwDwICSmkCAwD/4wQBBAIBAwQQMA4EAAIBAAIBAAQABAAEADASBAAEAKAMAgI38AIBAAIBADAA",
@@ -765,7 +765,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "stun-bind",
+					Slug:        "stun:bind",
 					Name:        "STUN binding request",
 					Service:     "stun",
 					EncodedData: "AAEAACESpEIAAAAAAAAAAAAAAAA=",
@@ -793,7 +793,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "tftp-read",
+					Slug:        "tftp:read",
 					Name:        "TFTP read request",
 					Service:     "tftp",
 					EncodedData: "AAEvYQBuZXRhc2NpaQA=",
@@ -816,13 +816,13 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "ubiquiti-discover-v1",
+					Slug:        "ubiquiti:discover-v1",
 					Name:        "Ubiquiti discover V1",
 					Service:     "ubiquiti",
 					EncodedData: "AQAAAA==",
 				},
 				{
-					Slug:        "ubiquiti-discover-v2",
+					Slug:        "ubiquiti:discover-v2",
 					Name:        "Ubiquiti discover V2",
 					Service:     "ubiquiti",
 					EncodedData: "AggAAA==",
@@ -846,7 +846,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "upnp-search",
+					Slug:        "upnp:search",
 					Name:        "UPnP search",
 					Service:     "upnp",
 					EncodedData: "TS1TRUFSQ0ggKiBIVFRQLzEuMQ0KSE9TVDoyMzkuMjU1LjI1NS4yNTA6MTkwMA0KU1Q6c3NkcDphbGwNCk1BTjoic3NkcDpkaXNjb3ZlciINCg0K",
@@ -871,7 +871,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "wdbrpc-info",
+					Slug:        "wdbrpc:info",
 					Name:        "WDBRPC info",
 					Service:     "wdbrpc",
 					EncodedData: "Ggn6ugAAAAAAAAACVVVVVQAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAP//VRIAAAA8AAAAAQAAAAIAAAAAAAAAAA==",
@@ -894,13 +894,13 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "wsd-discovery",
+					Slug:        "wsd:discovery",
 					Name:        "WSD discovery",
 					Service:     "wsd",
 					EncodedData: "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHNvYXA6RW52ZWxvcGUgeG1sbnM6c29hcD0iaHR0cDovL3d3dy53My5vcmcvMjAwMy8wNS9zb2FwLWVudmVsb3BlIiB4bWxuczp3c2E9Imh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDQvMDgvYWRkcmVzc2luZyIgeG1sbnM6d3NkPSJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA0L2Rpc2NvdmVyeSIgeG1sbnM6d3NkcD0iaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNi8wMi9kZXZwcm9mIj4KPHNvYXA6SGVhZGVyPjx3c2E6VG8+dXJuOnNjaGVtYXMteG1sc29hcC1vcmc6d3M6MjAwNTowNDpkaXNjb3Zlcnk8L3dzYTpUbz48d3NhOkFjdGlvbj5odHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA0L2Rpc2NvdmVyeS9Qcm9iZTwvd3NhOkFjdGlvbj48d3NhOk1lc3NhZ2VJRD51cm46dXVpZDpjZTA0ZGFkMC01ZDJjLTQwMjYtOTE0Ni0xYWFiZmMxZTQxMTE8L3dzYTpNZXNzYWdlSUQ+PC9zb2FwOkhlYWRlcj48c29hcDpCb2R5Pjx3c2Q6UHJvYmU+PHdzZDpUeXBlcz53c2RwOkRldmljZTwvd3NkOlR5cGVzPjwvd3NkOlByb2JlPjwvc29hcDpCb2R5Pjwvc29hcDpFbnZlbG9wZT4K",
 				},
 				{
-					Slug:        "wsd-blank",
+					Slug:        "wsd:blank",
 					Name:        "WSD blank SOAP",
 					Service:     "wsd",
 					EncodedData: "PDovPgo=",
@@ -925,7 +925,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "xdmcp-query",
+					Slug:        "xdmcp:query",
 					Name:        "XDMCP query",
 					Service:     "xdmcp",
 					EncodedData: "AAEAAgABAA==",
@@ -950,7 +950,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "kerberos-asreq",
+					Slug:        "kerberos:asreq",
 					Name:        "Kerberos AS-REQ",
 					Service:     "kerberos",
 					EncodedData: "anoweKEDAgEFogMCAQqkbDBqoAcDBQBAAAAAoREwD6ADAgEBoQgwBhsEbm1hcKIGGwR0ZXN0oxkwF6ADAgECoRAwDhsGa3JidGd0GwR0ZXN0pREYDzIwMjIxMTEzMjE0NTAyWqcGAgQJSnaBqA4wDAIBEgIBEQIBEAIBFw==",
@@ -976,7 +976,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "lantronix-search",
+					Slug:        "lantronix:search",
 					Name:        "Lantronix Discovery search",
 					Service:     "lantronix",
 					EncodedData: "AAAA9g==",
@@ -1001,7 +1001,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "ike-generic",
+					Slug:        "ike:generic",
 					Name:        "IKE generic",
 					Service:     "ike",
 					EncodedData: "W15kwD6ZtREAAAAAAAAAAAEQAgAAAAAAAAABUAAAATQAAAABAAAAAQAAASgBAQAIAwAAJAEB",
@@ -1026,7 +1026,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "radius-generic",
+					Slug:        "radius:generic",
 					Name:        "RADIUS generic",
 					Service:     "radius",
 					EncodedData: "AWcAV0C2ZNv11oGyrb0XaVFRGMgBB3N0ZXZlAhLbxsS3WL4U8AWzh3yeL7YBBAbAqAAcBQYAAAB7UBJfD4ZH6Mib2IE2Qmj80EUyTwwCZgAKAXN0ZXZl",
@@ -1051,13 +1051,13 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "dtls-client-hello",
+					Slug:        "dtls:client-hello",
 					Name:        "DTLS client hello",
 					Service:     "dtls",
 					EncodedData: "Fv7/AAAAAAAAAAAAwAEAALQAAAAAAAAAtP79+Cy0aiJvA+Bs0BWn891pJkw5IbKS1EQIvqHUgDv3g/UAAAA4wCzAMACfzKnMqMyqwCvALwCewCTAKABrwCPAJwBnwArAFAA5wAnAEwAzAJ0AnAA9ADwANQAvAP8BAABSAAsABAMAAQIACgAMAAoAHQAXAB4AGQAYACMAAAAWAAAAFwAAAA0AKgAoBAMFAwYDCAcICAgJCAoICwgECAUIBgQBBQEGAQMDAwEDAgQCBQIGAg==",
 				},
 				{
-					Slug:        "dtls-app-data",
+					Slug:        "dtls:app-data",
 					Name:        "DTLS application data",
 					Service:     "dtls",
 					EncodedData: "F/79AAEAAAAAAAEAHKdb4KseQJxMd5QKc/yEKb4NWR+dZoqvdu3y90k=",
@@ -1081,7 +1081,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "enip-list-identity",
+					Slug:        "enip:list-identity",
 					Name:        "EtherNet/IP list identity request",
 					Service:     "enip",
 					EncodedData: "YwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
@@ -1107,7 +1107,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "bittorrent-dht-ping",
+					Slug:        "bittorrent:dht-ping",
 					Name:        "BitTorrent DHT ping",
 					Service:     "bittorrent",
 					EncodedData: "ZDE6YWQyOmlkMjA6YWJjZGVmZ2hpajAxMjM0NTY3ODllMTpxNDpwaW5nMTp0MjphYTE6eTE6cWU=",
@@ -1131,7 +1131,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "msrpc-ncadg-ip-udp",
+					Slug:        "msrpc:ncadg-ip-udp",
 					Name:        "MSRPC ncadg_ip_udp bind",
 					Service:     "msrpc",
 					EncodedData: "BQALAxAAAABIAAAAAQAAALgQuBAAAAAAAQAAAAAAAQDE/vyZYFIbELvLAKoAITR6AAAAAARdiIrrHMkRn+gIACsQSGACAAAA",
@@ -1156,7 +1156,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "l2tp-generic",
+					Slug:        "l2tp:generic",
 					Name:        "L2TP generic",
 					Service:     "l2tp",
 					EncodedData: "yAIAawAAAAAAAAAAgAgAAAAAAAGACAAAAAIBAIAKAAAAAwAAAAOACgAAAAQAAAAAgAgAAAAGBpCAEAAAAAcxMDkuNi4xLjcygBMAAAAIeGVsZXJhbmNlLmNvbYAIAAAACUoygAgAAAAKAAQ=",
@@ -1181,7 +1181,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "nfs-generic",
+					Slug:        "nfs:generic",
 					Name:        "NFS generic",
 					Service:     "nfs",
 					EncodedData: "ZcpyKAAAAAAAAAACAAGGowAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
@@ -1205,7 +1205,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "slp-generic",
+					Slug:        "slp:generic",
 					Name:        "SLP generic",
 					Service:     "slp",
 					EncodedData: "AgEAADYgAAAAAAABAAJlbgAAABVzZXJ2aWNlOnNlcnZpY2UtYWdlbnQAB2RlZmF1bHQAAAAA",
@@ -1229,7 +1229,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "hart-ip-generic",
+					Slug:        "hart-ip:generic",
 					Name:        "HART-IP generic",
 					Service:     "hart-ip",
 					EncodedData: "AQAAAAACAA0BAAB1MA==",
@@ -1255,7 +1255,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "hid-discovery-generic",
+					Slug:        "hid-discovery:generic",
 					Name:        "HID Discovery generic",
 					Service:     "hid-discovery",
 					EncodedData: "ZGlzY292ZXI7MDEzOw==",
@@ -1280,7 +1280,7 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "pcworx-generic",
+					Slug:        "pcworx:generic",
 					Name:        "PCWorx generic",
 					Service:     "pcworx",
 					EncodedData: "AQEAGgAAAAB4gAADAAxJQkVUSDAxTjBfTQA=",

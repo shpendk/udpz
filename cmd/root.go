@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 
+	"udpz/pkg/data"
 	"udpz/pkg/scan"
 
 	"github.com/rs/zerolog"
@@ -30,6 +32,11 @@ var (
 	info  bool = true // Default log level
 	debug bool = false
 	trace bool = false
+
+	// Probe selection options
+	listServices bool
+	useProbes    []string = []string{"all"}
+	useTags      []string
 
 	// Output options
 	outputPath   string
@@ -68,15 +75,20 @@ func init() {
 	rootCmd.InitDefaultCompletionCmd()
 
 	// Output
-	rootCmd.Flags().StringVarP(&outputPath, "output", "o", outputPath, "Save results to file")
+	rootCmd.Flags().StringVarP(&outputPath, "output", "o", outputPath, "Save output to file")
 	rootCmd.Flags().StringVarP(&logPath, "log", "O", logPath, "Output log messages to file")
-	rootCmd.Flags().BoolVarP(&outputAppend, "append", "a", outputAppend, "Append results to output file")
+	rootCmd.Flags().BoolVar(&outputAppend, "append", outputAppend, "Append results to output file")
 	rootCmd.Flags().StringVarP(&outputFormat, "format", "f", outputFormat, "Output format [text, pretty, csv, tsv, json, yaml, auto]")
-	rootCmd.Flags().StringVarP(&logFormat, "log-format", "L", logFormat, `Output log format [pretty, json, auto]`)
+	rootCmd.Flags().StringVarP(&logFormat, "log-format", "F", logFormat, `Output log format [pretty, json, auto]`)
+
+	// Probe Selection
+	rootCmd.Flags().BoolVarP(&listServices, "list", "l", listServices, "List available services / probes")
+	rootCmd.Flags().StringArrayVarP(&useProbes, "probes", "p", useProbes, "Service probe(s) to use")
+	rootCmd.Flags().StringArrayVar(&useTags, "tags", useTags, "Target service tag(s)")
 
 	// Performance
 	rootCmd.Flags().UintVarP(&hostConcurrency, "host-tasks", "c", hostConcurrency, "Maximum Number of hosts to scan concurrently")
-	rootCmd.Flags().UintVarP(&portConcurrency, "port-tasks", "p", portConcurrency, "Number of Concurrent scan tasks per host")
+	rootCmd.Flags().UintVarP(&portConcurrency, "port-tasks", "P", portConcurrency, "Number of Concurrent scan tasks per host")
 	rootCmd.Flags().UintVarP(&retransmissions, "retries", "r", retransmissions, "Number of probe retransmissions per probe")
 	rootCmd.Flags().UintVarP(&timeoutMs, "timeout", "t", timeoutMs, "UDP Probe timeout in milliseconds")
 
@@ -108,7 +120,6 @@ var rootCmd = &cobra.Command{
   Author: Bryan McNulty (@bryanmcnulty)
   Source: https://github.com/FalconOps-Cybersecurity/udpz`,
 
-	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, targets []string) (err error) {
 
 		var outputFile *os.File
@@ -119,6 +130,9 @@ var rootCmd = &cobra.Command{
 
 		outputFormat = strings.ToLower(outputFormat)
 
+		if len(targets) == 0 && !listServices {
+			return errors.New("at least one target (IP address, hostname, CIDR, or file) is required")
+		}
 		if sup, ok := supportedOutputFormats[outputFormat]; !ok || !sup {
 			return errors.New("invalid output format: " + outputFormat)
 		}
@@ -185,10 +199,42 @@ var rootCmd = &cobra.Command{
 				Msg("Could not open log file for writing")
 		}
 
+		broker := data.NewUdpDataBroker(log)
+
+		if listServices {
+			services, probes := broker.Filter(useProbes, useTags)
+			log.Debug().
+				Int("service_count", len(services)).
+				Int("probe_count", len(probes)).
+				Msg("Filtered services")
+
+			if outputPath == "" {
+				outputFile = os.Stdout
+
+			} else if outputFile, err = os.OpenFile(outputPath, outputFlags, 0o644); err != nil {
+				log.Error().
+					AnErr("error", err).
+					Str("outputPath", outputPath).
+					Msg("Could not open output file for writing")
+				outputFile = os.Stdout
+			}
+			if data, err := json.Marshal(services); err == nil {
+				outputFile.Write(data)
+
+			} else {
+				log.Fatal().
+					Str("path", outputPath).
+					Err(err).
+					Msg("Failed to serialize object")
+			}
+			return nil
+		}
+
 		var scanner scan.UdpProbeScanner
 
 		if scanner, err = scan.NewUdpProbeScanner(
 			log,
+			broker,
 			scanAllAddresses,
 			hostConcurrency,
 			portConcurrency,
@@ -206,11 +252,12 @@ var rootCmd = &cobra.Command{
 
 		var scanStartTime, scanEndTime time.Time
 
-		log.Info().
-			Msg("Starting scanner")
-
 		scanStartTime = time.Now()
-		scanner.Scan(targets)
+		if err = scanner.Scan(targets, useProbes, useTags); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Scan aborted")
+		}
 		scanEndTime = time.Now()
 
 		log.Info().
