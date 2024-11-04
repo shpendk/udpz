@@ -35,8 +35,8 @@ var (
 
 	// Probe selection options
 	listServices bool
-	useProbes    []string = []string{"all"}
-	useTags      []string
+	useProbes    string
+	useTags      string
 
 	// Output options
 	outputPath   string
@@ -83,8 +83,8 @@ func init() {
 
 	// Probe Selection
 	rootCmd.Flags().BoolVarP(&listServices, "list", "l", listServices, "List available services / probes")
-	rootCmd.Flags().StringArrayVarP(&useProbes, "probes", "p", useProbes, "Service probe(s) to use")
-	rootCmd.Flags().StringArrayVar(&useTags, "tags", useTags, "Target service tag(s)")
+	rootCmd.Flags().StringVarP(&useProbes, "probes", "p", useProbes, "Service probe(s) to use")
+	rootCmd.Flags().StringVar(&useTags, "tags", useTags, "Target service tag(s)")
 
 	// Performance
 	rootCmd.Flags().UintVarP(&hostConcurrency, "host-tasks", "c", hostConcurrency, "Maximum Number of hosts to scan concurrently")
@@ -202,7 +202,7 @@ var rootCmd = &cobra.Command{
 		broker := data.NewUdpDataBroker(log)
 
 		if listServices {
-			services, probes := broker.Filter(useProbes, useTags)
+			services, probes := broker.Filter(strings.Split(useProbes, ","), strings.Split(useTags, ","))
 			log.Debug().
 				Int("service_count", len(services)).
 				Int("probe_count", len(probes)).
@@ -253,7 +253,7 @@ var rootCmd = &cobra.Command{
 		var scanStartTime, scanEndTime time.Time
 
 		scanStartTime = time.Now()
-		if err = scanner.Scan(targets, useProbes, useTags); err != nil {
+		if err = scanner.Scan(targets, strings.Split(useProbes, ","), strings.Split(useTags, ",")); err != nil {
 			log.Fatal().
 				Err(err).
 				Msg("Scan aborted")

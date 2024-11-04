@@ -1,1 +1,2 @@
 {"level":"debug","service_count":22,"probe_count":29,"time":1730750831000290293,"caller":"/home/bryan/repos/udpz/udpz/cmd/root.go:209","message":"Filtered services"}
+{"level":"debug","service_count":0,"probe_count":0,"time":1730751416249013026,"caller":"/home/bryan/repos/udpz/udpz/cmd/root.go:209","message":"Filtered services"}

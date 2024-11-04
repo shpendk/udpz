@@ -89,10 +89,11 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 		if err == nil {
 			if err = conn.SetReadDeadline(time.Now().Add(sc.ReadTimeout)); err == nil {
 
-				response := make([]byte, RESPONSE_MAX_LEN)
+				responseBuffer := make([]byte, RESPONSE_MAX_LEN)
+				var response []byte
 
 				sc.Logger.Trace().
-					Str("type", "(net.).write").
+					Str("type", "(net.Conn).write").
 					Str("transport", transport).
 					Str("address", address).
 					Bytes("data", payload).
@@ -104,10 +105,12 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 					Str("type", "connection.read").
 					Str("transport", transport).
 					Str("address", address).
-					Bytes("data", response).
 					Msg("(net.Conn).Read(data)")
 
-				readLen, err = bufio.NewReader(conn).Read(response)
+				readLen, err = bufio.NewReader(conn).Read(responseBuffer)
+
+				response = responseBuffer[:readLen]
+				responseBuffer = nil // free response buffer
 
 				sc.Logger.Trace().
 					Str("type", "connection.close").
@@ -133,7 +136,7 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 					}
 
 					if readLen > 0 {
-						result.Response = base64.StdEncoding.EncodeToString(response[:readLen])
+						result.Response = base64.StdEncoding.EncodeToString(response)
 					}
 				}
 			}
@@ -251,7 +254,7 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string, slugs []string, tags 
 
 						go func(wg *sync.WaitGroup,
 							h Host, port uint16, probe data.UdpProbe,
-							service *data.UdpService, portStatus *uint8) {
+							service data.UdpService, portStatus *uint8) {
 
 							defer func() {
 								wg.Done()
@@ -311,7 +314,7 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string, slugs []string, tags 
 									Err(err).
 									Msg("Failed to decode probe data")
 							}
-						}(&portWg, host, port, probe, &service, &portStatus)
+						}(&portWg, host, port, probe, service, &portStatus)
 					}
 				}
 			}

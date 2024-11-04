@@ -44,6 +44,15 @@ func (u *UdpDataBroker) Filter(slugs []string, tags []string) (services map[stri
 
 	u.populate()
 
+	u.Logger.Trace().
+		Strs("slugs", slugs).
+		Strs("tags", tags).
+		Msg("(*UdpDataBroker).Filter(...)")
+
+	if (len(slugs) == 1 && len(tags) == 1) && (slugs[0] == "" && tags[0] == "") {
+		slugs = []string{"all"}
+	}
+
 	services = make(map[string]UdpService)
 	probeMap = make(map[string]UdpProbe)
 
@@ -67,7 +76,7 @@ func (u *UdpDataBroker) Filter(slugs []string, tags []string) (services map[stri
 			// Check if probe is already found
 			if _, ok := probeMap[slug]; !ok {
 
-				if strings.HasPrefix(slug, serviceSlug) {
+				if strings.HasPrefix(slug, serviceSlug) || slug == "all" || slug == "*" {
 
 					if probes, ok := service.getProbes(slug); ok {
 						// Create new service struct & only add matching probes
