@@ -80,8 +80,8 @@ Flags:
   -f, --format string        Output format [text, pretty, csv, tsv, json, yaml, auto] (default "auto")
   -F, --log-format string    Output log format [pretty, json, auto] (default "auto")
   -l, --list                 List available services / probes
-  -p, --probes stringArray   Service probe(s) to use (default [all])
-      --tags stringArray     Target service tag(s)
+  -p, --probes string        comma-delimited list of service probes
+      --tags string          comma-delimited list of target service tags
   -c, --host-tasks uint      Maximum Number of hosts to scan concurrently (default 10)
   -P, --port-tasks uint      Number of Concurrent scan tasks per host (default 100)
   -r, --retries uint         Number of probe retransmissions per probe (default 2)

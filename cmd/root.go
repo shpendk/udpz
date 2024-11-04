@@ -83,8 +83,8 @@ func init() {
 
 	// Probe Selection
 	rootCmd.Flags().BoolVarP(&listServices, "list", "l", listServices, "List available services / probes")
-	rootCmd.Flags().StringVarP(&useProbes, "probes", "p", useProbes, "Service probe(s) to use")
-	rootCmd.Flags().StringVar(&useTags, "tags", useTags, "Target service tag(s)")
+	rootCmd.Flags().StringVarP(&useProbes, "probes", "p", useProbes, "comma-delimited list of service probes")
+	rootCmd.Flags().StringVar(&useTags, "tags", useTags, "comma-delimited list of target service tags")
 
 	// Performance
 	rootCmd.Flags().UintVarP(&hostConcurrency, "host-tasks", "c", hostConcurrency, "Maximum Number of hosts to scan concurrently")
