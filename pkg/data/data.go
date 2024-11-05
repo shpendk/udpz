@@ -480,6 +480,7 @@ var (
 			Tags: []string{
 				"common",
 				"internet",
+				"active-directory",
 			},
 			References: []string{
 				"https://www.speedguide.net/port.php?port=123",
@@ -620,7 +621,7 @@ var (
 			Probes: []UdpProbe{
 				{
 					Slug:        "rdp:syn",
-					Name:        "RDPUDP SYN request",
+					Name:        "MS-RDPEUDP SYN request",
 					Service:     "rdp",
 					EncodedData: "ABTzAQoAZOBkAAEAFgMBAQ0BAAEJAwPUmdmCR1xpMEnfSS4Kq19KqKxXDKSUEZg2q9cBPS7ZyyAfjKhwF1mj1yNFjjVDUIh48nRapZ+vTAQFyOk5yw32HwAoEwITAcAswCvAMMAvwCTAI8AowCfACsAJwBTAEwCdAJwAPQA8ADUALwEAAJgAAAAcABoAABd2bTM5LWFkMjAyNC53ZWJlcmxhYi5kZQArAAkIAwQDAwMCAwEADQAaABgIBAgFCAYEAQUBAgEEAwUDAgMCAgYBBgMAIwAAAAoACAAGAB0AFwAYADMAJgAkAB0AIFnI0PSm/+SwN1qcEZeq6qHUJm607CRYzXJwMj7WxzchADEAAAAXAAD/AQABAAAtAAIBAQ==",
 				},
@@ -628,6 +629,7 @@ var (
 			Tags: []string{
 				"remote-desktop",
 				"windows",
+				"active-directory",
 				"common",
 			},
 			References: []string{

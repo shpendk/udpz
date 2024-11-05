@@ -2,7 +2,6 @@ package scan
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 
@@ -31,7 +30,8 @@ func (sc *UdpProbeScanner) SaveYAML(output *os.File) error {
 func (sc *UdpProbeScanner) SaveTable(format string, output *os.File) {
 
 	resultsTable := table.NewWriter()
-	resultsTable.AppendHeader(table.Row{"Host", "Port", "State", "Service", "Probes"})
+	resultsTable.AppendHeader(table.Row{"Host", "Transport", "Port", "State", "Service", "Probes"})
+	resultsTable.SortBy([]table.SortBy{{Name: "Host"}, {Name: "Port", Mode: table.AscNumeric}})
 
 	for host, ports := range sc.resultsMap {
 		for port, results := range ports {
@@ -55,14 +55,14 @@ func (sc *UdpProbeScanner) SaveTable(format string, output *os.File) {
 				}
 				resultsTable.AppendRow(table.Row{
 					host,
-					fmt.Sprintf("%d/UDP", port),
+					"UDP",
+					port,
 					"OPEN",
 					service,
 					strings.Join(probeNames, ",\n"),
 				})
 			}
 		}
-		resultsTable.AppendSeparator()
 	}
 	resultsTable.SetOutputMirror(output)
 	if format == "text" || format == "txt" {
