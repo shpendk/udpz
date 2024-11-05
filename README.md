@@ -103,16 +103,22 @@ The target argument(s) can be an IP address, hostname, CIDR, or file(s) containi
 
 ### Examples
 
-- Simple UDP scan of a single host with prettyfied output and no informational logging:
+- Simple scan of a host and CIDR limited to one packet retransmission and without informational logging:
 ```
-./udpz -f pretty localhost --quiet
+./udpz --retries 1 --quiet 10.10.197.101 10.10.197.102/31
 
-╭───────────┬──────────┬───────┬─────────────┬─────────────────────╮
-│ HOST      │ PORT     │ STATE │ SERVICE     │ PROBES              │
-├───────────┼──────────┼───────┼─────────────┼─────────────────────┤
-│ 127.0.0.1 │ 5353/UDP │ OPEN  │ mDNS        │ mDNS reverse lookup │
-│ 127.0.0.1 │ 111/UDP  │ OPEN  │ Portmap/RPC │ Portmap RPC dump    │
-╰───────────┴──────────┴───────┴─────────────┴─────────────────────╯
+╭───────────────┬───────────┬──────┬───────┬──────────┬──────────────────────╮
+│ HOST          │ TRANSPORT │ PORT │ STATE │ SERVICE  │ PROBES               │
+├───────────────┼───────────┼──────┼───────┼──────────┼──────────────────────┤
+│ 10.10.197.101 │ UDP       │   53 │ OPEN  │ DNS      │ DNS A query          │
+│ 10.10.197.101 │ UDP       │   88 │ OPEN  │ Kerberos │ Kerberos AS-REQ      │
+│ 10.10.197.101 │ UDP       │  123 │ OPEN  │ NTP      │ NTPv4 request        │
+│ 10.10.197.101 │ UDP       │  389 │ OPEN  │ CLDAP    │ CLDAP root DSE query │
+│ 10.10.197.103 │ UDP       │   53 │ OPEN  │ DNS      │ DNS A query          │
+│ 10.10.197.103 │ UDP       │   88 │ OPEN  │ Kerberos │ Kerberos AS-REQ      │
+│ 10.10.197.103 │ UDP       │  123 │ OPEN  │ NTP      │ NTPv4 request        │
+│ 10.10.197.103 │ UDP       │  389 │ OPEN  │ CLDAP    │ CLDAP root DSE query │
+╰───────────────┴───────────┴──────┴───────┴──────────┴──────────────────────╯
 ```
 
 - UDP scan with custom number of workers and timeout with debug logging:
