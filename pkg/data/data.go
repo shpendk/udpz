@@ -610,7 +610,7 @@ var (
 			},
 		},
 		"rdp": {
-			Slug:        "rdpudp",
+			Slug:        "rdp",
 			NameShort:   "RDPUDP",
 			Name:        "Remote Desktop Protocol (RDP) over UDP",
 			Description: `Microsoft's RDP UDP transport extension enables users to connect to a remote desktop over UDP. This is often used to improve connection speed for clients.`,
@@ -619,9 +619,9 @@ var (
 			},
 			Probes: []UdpProbe{
 				{
-					Slug:        "rdpudp:syn",
+					Slug:        "rdp:syn",
 					Name:        "RDPUDP SYN request",
-					Service:     "rdpudp",
+					Service:     "rdp",
 					EncodedData: "ABTzAQoAZOBkAAEAFgMBAQ0BAAEJAwPUmdmCR1xpMEnfSS4Kq19KqKxXDKSUEZg2q9cBPS7ZyyAfjKhwF1mj1yNFjjVDUIh48nRapZ+vTAQFyOk5yw32HwAoEwITAcAswCvAMMAvwCTAI8AowCfACsAJwBTAEwCdAJwAPQA8ADUALwEAAJgAAAAcABoAABd2bTM5LWFkMjAyNC53ZWJlcmxhYi5kZQArAAkIAwQDAwMCAwEADQAaABgIBAgFCAYEAQUBAgEEAwUDAgMCAgYBBgMAIwAAAAoACAAGAB0AFwAYADMAJgAkAB0AIFnI0PSm/+SwN1qcEZeq6qHUJm607CRYzXJwMj7WxzchADEAAAAXAAD/AQABAAAtAAIBAQ==",
 				},
 			},
