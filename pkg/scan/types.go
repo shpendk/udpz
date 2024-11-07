@@ -10,18 +10,19 @@ import (
 )
 
 type UdpProbeScanner struct {
-	HostConcurrency  uint
-	PortConcurrency  uint
-	ProbeCount       uint
-	Retransmissions  uint
-	scanAllAddresses bool
-	ReadTimeout      time.Duration
+	HostConcurrency uint
+	PortConcurrency uint
+	ProbeCount      uint
+	Retransmissions uint
+	ReadTimeout     time.Duration
 
 	Logger zerolog.Logger
 	Broker data.UdpDataBroker
 
-	proxy    *socks5.Client
-	useProxy bool
+	proxy            *socks5.Client
+	useProxy         bool
+	forceDefault     bool
+	scanAllAddresses bool
 
 	resultsLive chan PortResult
 	results     []PortResult

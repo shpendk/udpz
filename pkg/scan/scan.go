@@ -173,7 +173,9 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string, slugs []string, tags 
 		Str("type", "call").
 		Str("function", "(*UdpProbeScanner).Scan").
 		Dict("arguments", zerolog.Dict().
-			Strs("targetSourceList", targetSourceList)).
+			Strs("targetSourceList", targetSourceList).
+			Strs("slugs", slugs).
+			Strs("tags", tags)).
 		Msg("(*UdpProbeScanner).Scan(...)")
 
 	var hostWg sync.WaitGroup
@@ -193,7 +195,6 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string, slugs []string, tags 
 
 	totalCount := probeCount * (sc.Retransmissions + 1)
 
-	hostSem := make(chan struct{}, sc.HostConcurrency)
 	hosts := make(chan Host)
 
 	go func(wg *sync.WaitGroup, c chan Host) {
@@ -223,106 +224,7 @@ func (sc *UdpProbeScanner) Scan(targetSourceList []string, slugs []string, tags 
 		Uint("packet_count", totalCount).
 		Msg("Starting scan")
 
-	for host := range hosts {
-
-		host := host // Shadow variable
-		portWg := sync.WaitGroup{}
-		portSem := make(chan struct{}, sc.PortConcurrency)
-
-		hostSem <- struct{}{}
-		hostWg.Add(1)
-
-		go func() {
-
-			defer func() {
-				hostWg.Done()
-				<-hostSem
-			}()
-
-			for _, service := range services {
-				for _, port := range service.Ports {
-
-					// Port is unresponsive unless a response is received (duh)
-					var portStatus uint8 = STATE_UNRESPONSIVE
-
-					for _, probe := range service.Probes {
-
-						probe := probe
-
-						portSem <- struct{}{}
-						portWg.Add(1)
-
-						go func(wg *sync.WaitGroup,
-							h Host, port uint16, probe data.UdpProbe,
-							service data.UdpService, portStatus *uint8) {
-
-							defer func() {
-								wg.Done()
-								<-portSem
-							}()
-
-							if probeBytes, err := base64.StdEncoding.DecodeString(probe.EncodedData); err == nil {
-								for i := 0; i <= int(sc.Retransmissions); i++ {
-
-									if *portStatus == STATE_CLOSED {
-
-										sc.Logger.Debug().
-											Str("target", h.Target.Target).
-											Str("host", h.Host).
-											Uint16("port", port).
-											Msg("Skipping closed port")
-									}
-
-									if result, err := sc.scanTask(h, port, probeBytes); err != nil {
-
-										if strings.Contains(err.Error(), "connection refused") {
-											*portStatus = STATE_CLOSED
-
-											sc.Logger.Debug().
-												Str("target", h.Target.Target).
-												Str("host", h.Host).
-												Uint16("port", port).
-												Msg("Port closed")
-
-										} else if strings.Contains(err.Error(), "i/o timeout") {
-											sc.Logger.Debug().
-												Str("target", h.Target.Target).
-												Str("host", h.Host).
-												Uint16("port", port).
-												Str("probe", probe.Slug).
-												Msg("Port unresponsive")
-
-										} else {
-											sc.Logger.Error().
-												Err(err).
-												Str("target", h.Target.Target).
-												Str("host", h.Host).
-												Uint16("port", port).
-												Msg("Error in scan task")
-										}
-									} else {
-										result.Service = service.ToOutput()
-										result.Probe = probe.ToOutput()
-
-										sc.resultsLive <- result
-										*portStatus = STATE_RESPONSIVE
-									}
-								}
-							} else {
-								sc.Logger.Error().
-									Interface("probe", probe).
-									Err(err).
-									Msg("Failed to decode probe data")
-							}
-						}(&portWg, host, port, probe, service, &portStatus)
-					}
-				}
-			}
-			portWg.Wait()
-		}()
-	}
-
-	hostWg.Wait()
+	sc.DefaultScan(&hostWg, hosts, services)
 	return
 }
 

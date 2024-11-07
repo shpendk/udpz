@@ -18,6 +18,13 @@ builds:
       - arm64
       - "386"
       - arm
+
+upx:
+  - enabled: true
+    goos: [ linux ]
+    compress: best
+    lzma: true
+
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
     files:
