@@ -167,7 +167,6 @@ var rootCmd = &cobra.Command{
 			log = zerolog.New(os.Stderr).
 				With().
 				Timestamp().
-				Caller().
 				Logger()
 			if logFormat == "auto" || logFormat == "pretty" {
 				log = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
@@ -178,7 +177,6 @@ var rootCmd = &cobra.Command{
 			log = zerolog.New(logFile).
 				With().
 				Timestamp().
-				Caller().
 				Logger()
 			if logFormat == "pretty" {
 				log = log.Output(zerolog.ConsoleWriter{Out: logFile})
@@ -188,7 +186,6 @@ var rootCmd = &cobra.Command{
 			log = zerolog.New(os.Stderr).
 				With().
 				Timestamp().
-				Caller().
 				Logger()
 			if logFormat == "auto" || logFormat == "pretty" {
 				log = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
