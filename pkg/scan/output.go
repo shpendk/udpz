@@ -59,7 +59,7 @@ func (sc *UdpProbeScanner) SaveTable(format string, output *os.File) {
 					port,
 					"OPEN",
 					service,
-					strings.Join(probeNames, ",\n"),
+					strings.Join(probeNames, "|"),
 				})
 			}
 		}
