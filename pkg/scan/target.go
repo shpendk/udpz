@@ -2,7 +2,6 @@ package scan
 
 import (
 	"bufio"
-	"fmt"
 	"net"
 	"os"
 
@@ -20,71 +19,40 @@ func (sc *UdpProbeScanner) ResolveTargetLine(targetSource string, hosts chan Hos
 		Msg("(*UdpProbeScanner).ResolveTargetLine(...)")
 
 	var target Target
-	var host Host
+	//var host Host
 
 	target.Target = targetSource
 
 	if ip := net.ParseIP(targetSource); ip != nil {
 		// If target can be parsed as IP address
 
-		target.Type = "IP"
-		host.Target = target
-
-		// Check if IP address is IPv4
-		if ip4 := ip.To4(); ip4 != nil {
-
-			host.Type = "IPv4"
-			host.Host = ip4.String()
-
-		} else if ip16 := ip.To16(); ip16 != nil {
-			// If IP address is IPv6
-
-			host.Type = "IPv6"
-			host.Host = fmt.Sprintf("[%s]", ip16) // net.Dial requires IPv6 addresses to be in square brackets
-		}
 		sc.Logger.Debug().
-			Str("type", target.Type).
-			Str("target", target.Target).
-			Str("address_type", host.Type).
+			Str("target", target.String()).
 			IPAddr("ip", ip).
 			Msg("Target resolved")
 
-		hosts <- host // Target is resolved to IP address
+		hosts <- Host{
+			Target: target,
+			Host:   ip,
+		} // Target is resolved to IP address
 		ok = true
 
 	} else if ip, ipNet, err := net.ParseCIDR(targetSource); err == nil {
 		// If target can be parsed as CIDR
 
-		var ipv6 bool
-
 		target.Type = "CIDR"
-		addrType := "Unknown"
 
-		if ip4 := ip.To4(); ip4 != nil {
-			addrType = "IPv4"
-		} else if ip16 := ip.To16(); ip16 != nil {
-			addrType = "IPv6"
-			ipv6 = true
-		}
 		sc.Logger.Debug().
-			Str("type", target.Type).
-			Str("target", target.Target).
-			Str("address_type", addrType).
+			Str("target", target.String()).
 			IPAddr("ip", ip).
 			Str("cidr", ipNet.String()).
 			Msg("Target CIDR resolved")
 
 		for ipNet.Contains(ip) {
-			host = Host{
+			hosts <- Host{
 				Target: target,
-				Type:   addrType,
-				Host:   ip.String(),
-				ip:     ip,
+				Host:   ip,
 			}
-			if ipv6 {
-				host.Host = fmt.Sprintf("[%s]", ip)
-			}
-			hosts <- host
 
 			for j := len(ip) - 1; j >= 0; j-- {
 				ip[j]++
@@ -108,19 +76,10 @@ func (sc *UdpProbeScanner) ResolveTargetLine(targetSource string, hosts chan Hos
 
 			for _, ip := range ips {
 
-				host = Host{Target: target}
-
-				if ip4 := ip.To4(); ip4 != nil {
-					host.Type = "IPv4"
-					host.Host = ip4.String()
-					host.ip = ip4
-
-				} else if ip16 := ip.To16(); ip16 != nil {
-					host.Type = "IPv6"
-					host.Host = fmt.Sprintf("[%s]", ip16)
-					host.ip = ip16
+				hosts <- Host{
+					Target: target,
+					Host:   ip,
 				}
-				hosts <- host
 
 				if !sc.scanAllAddresses {
 					break

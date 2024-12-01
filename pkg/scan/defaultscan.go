@@ -55,14 +55,19 @@ func (sc *UdpProbeScanner) DefaultScan(hostWg *sync.WaitGroup, hosts chan Host, 
 							}()
 
 							if probeBytes, err := base64.StdEncoding.DecodeString(probe.EncodedData); err == nil {
+
+								portLog := sc.Logger.With().
+									Str("target", h.Target.Target).
+									IPAddr("host", h.Host).
+									Uint16("port", port).
+									Str("probe", probe.Slug).
+									Logger()
+
 								for i := 0; i <= int(sc.Retransmissions); i++ {
 
 									// Don't send any more packets if port is closed
 									if *portStatus == STATE_CLOSED {
-										sc.Logger.Debug().
-											Str("target", h.Target.Target).
-											Str("host", h.Host).
-											Uint16("port", port).
+										portLog.Trace().
 											Msg("Skipping closed port")
 									}
 
@@ -71,29 +76,18 @@ func (sc *UdpProbeScanner) DefaultScan(hostWg *sync.WaitGroup, hosts chan Host, 
 										// Check if error is a refused connection (port closed)
 										if strings.Contains(err.Error(), "connection refused") {
 											*portStatus = STATE_CLOSED
-
-											sc.Logger.Debug().
-												Str("target", h.Target.Target).
-												Str("host", h.Host).
-												Uint16("port", port).
+											portLog.Trace().
 												Msg("Port closed")
 
 											// Check if error is an io timeout (port unresponsive)
 										} else if strings.Contains(err.Error(), "i/o timeout") {
-											sc.Logger.Debug().
-												Str("target", h.Target.Target).
-												Str("host", h.Host).
-												Uint16("port", port).
-												Str("probe", probe.Slug).
+											portLog.Debug().
 												Msg("Port unresponsive")
 
 										} else {
 											// Scan task returned unexpected error
-											sc.Logger.Error().
-												Err(err).
-												Str("target", h.Target.Target).
-												Str("host", h.Host).
-												Uint16("port", port).
+											portLog.Error().
+												Stack().Err(err).
 												Msg("Error in scan task")
 										}
 									} else {
@@ -110,8 +104,8 @@ func (sc *UdpProbeScanner) DefaultScan(hostWg *sync.WaitGroup, hosts chan Host, 
 							} else {
 								// If base64.StdEncoding.DecodeString fails to decode probe data
 								sc.Logger.Error().
+									Stack().Err(err).
 									Interface("probe", probe).
-									Err(err).
 									Msg("Failed to decode probe data")
 							}
 						}(&portWg, host, port, probe, service, &portStatus)

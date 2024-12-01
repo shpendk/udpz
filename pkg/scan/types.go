@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"fmt"
 	"net"
 	"time"
 	"udpz/pkg/data"
@@ -16,29 +17,16 @@ type UdpProbeScanner struct {
 	Retransmissions uint
 	ReadTimeout     time.Duration
 
-	Logger zerolog.Logger
+	Logger *zerolog.Logger
 	Broker data.UdpDataBroker
 
 	proxy            *socks5.Client
 	useProxy         bool
-	forceDefault     bool
 	scanAllAddresses bool
 
 	resultsLive chan PortResult
 	results     []PortResult
 	resultsMap  map[string]map[uint16][]PortResult
-}
-
-type Target struct {
-	Type   string `yaml:"type" json:"type"`
-	Target string `yaml:"source" json:"source"`
-}
-
-type Host struct {
-	Type   string `yaml:"type" json:"type"`
-	Host   string `yaml:"host" json:"host"`
-	Target Target `yaml:"target" json:"target"`
-	ip     net.IP
 }
 
 type PortResult struct {
@@ -48,4 +36,32 @@ type PortResult struct {
 	Service   data.UdpServiceOutput `yaml:"service" json:"service"`
 	Probe     data.UdpProbeOutput   `yaml:"probe" json:"probe"`
 	Response  string                `yaml:"response" json:"response"`
+}
+
+type Target struct {
+	Type   string `yaml:"type" json:"type"`
+	Target string `yaml:"source" json:"source"`
+
+	targetString string
+}
+
+type Host struct {
+	Host   net.IP `yaml:"host" json:"host"`
+	Target Target `yaml:"target" json:"target"`
+
+	hostString string
+}
+
+func (host *Host) String() string {
+	if host.hostString == "" {
+		host.hostString = host.Host.String()
+	}
+	return host.hostString
+}
+
+func (target *Target) String() string {
+	if target.targetString == "" {
+		target.targetString = fmt.Sprintf("%s:%s", target.Type, target.Target)
+	}
+	return target.targetString
 }

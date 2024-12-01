@@ -17,7 +17,7 @@ import (
 
 var (
 	// Scan options
-	hostConcurrency uint = 10
+	hostConcurrency uint = 255
 	portConcurrency uint = 100
 	timeoutMs       uint = 3000
 	retransmissions uint = 2
@@ -164,37 +164,35 @@ var rootCmd = &cobra.Command{
 		zerolog.TimeFieldFormat = zerolog.TimeFormatUnixNano
 
 		if logPath == "" {
-			log = zerolog.New(os.Stderr).
-				With().
-				Timestamp().
-				Logger()
+			log = zerolog.New(os.Stderr)
+
 			if logFormat == "auto" || logFormat == "pretty" {
 				log = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 			}
-		} else if logFile, err = os.OpenFile(logPath, logFileFlags, 0o644); err == nil {
 
+		} else if logFile, err = os.OpenFile(logPath, logFileFlags, 0o644); err == nil {
 			defer logFile.Close()
-			log = zerolog.New(logFile).
-				With().
-				Timestamp().
-				Logger()
+
+			log = zerolog.New(logFile)
+
 			if logFormat == "pretty" {
 				log = log.Output(zerolog.ConsoleWriter{Out: logFile})
 			}
-
 		} else {
-			log = zerolog.New(os.Stderr).
-				With().
-				Timestamp().
-				Logger()
+			log = zerolog.New(os.Stderr)
+
 			if logFormat == "auto" || logFormat == "pretty" {
 				log = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 			}
 			log.Error().
-				AnErr("error", err).
+				Stack().Err(err).
 				Str("log_path", logPath).
 				Msg("Could not open log file for writing")
 		}
+		log = log.
+			With().
+			Timestamp().
+			Logger()
 
 		broker := data.NewUdpDataBroker(log)
 
@@ -230,7 +228,7 @@ var rootCmd = &cobra.Command{
 		var scanner scan.UdpProbeScanner
 
 		if scanner, err = scan.NewUdpProbeScanner(
-			log,
+			&log,
 			broker,
 			scanAllAddresses,
 			hostConcurrency,
