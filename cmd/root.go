@@ -98,11 +98,11 @@ func init() {
 	// Proxy
 	rootCmd.Flags().StringVarP(&socks5Address, "socks", "S", socks5Address, "SOCKS5 proxy address as HOST:PORT")
 	rootCmd.Flags().StringVar(&socks5User, "socks-user", socks5User, "SOCKS5 proxy username")
-	rootCmd.Flags().StringVar(&socks5Password, "socks-pass", socks5Password, "SOCKS5 proxy password")
+	rootCmd.Flags().StringVar(&socks5Password, "socks-pass", socks5Password, "SOCKS5 proxy password (WARNING: insecure)")
 	rootCmd.Flags().UintVar(&socks5Timeout, "socks-timeout", socks5Timeout, "SOCKS5 proxy timeout in milliseconds")
 
 	// Logging
-	rootCmd.Flags().BoolVarP(&debug, "debug", "D", debug, "Enable debug logging (Very noisy!)")
+	rootCmd.Flags().BoolVarP(&debug, "debug", "D", debug, "Enable debug logging (Noisy!)")
 	rootCmd.Flags().BoolVarP(&trace, "trace", "T", trace, "Enable trace logging (Very noisy!)")
 	rootCmd.Flags().BoolVarP(&quiet, "quiet", "q", quiet, "Disable info logging")
 	rootCmd.Flags().BoolVarP(&silent, "silent", "s", silent, "Disable ALL logging")
@@ -111,7 +111,7 @@ func init() {
 var rootCmd = &cobra.Command{
 	Use:     "udpz [flags] [IP|hostname|CIDR|file ...]",
 	Short:   "Speedy probe-oriented UDP port scanner",
-	Version: "0.1.0",
+	Version: "0.1.1",
 	Long: `
   ┳┳  ┳┓  ┏┓  ┏┓
   ┃┃━━┃┃━━┃┃━━┏┛
