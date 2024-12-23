@@ -1,7 +1,6 @@
 package scan
 
 import (
-	"bufio"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -60,7 +59,6 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 		Msg("(*UdpProbeScanner).scanTask")
 
 	var conn net.Conn
-	var readLen int
 
 	for {
 		transport := "udp"
@@ -87,8 +85,8 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 		if err == nil {
 			if err = conn.SetReadDeadline(time.Now().Add(sc.ReadTimeout)); err == nil {
 
-				responseBuffer := make([]byte, RESPONSE_MAX_LEN)
 				var response []byte
+				var readLen int
 
 				sc.Logger.Trace().
 					Str("type", "(net.Conn).write").
@@ -99,10 +97,10 @@ func (sc *UdpProbeScanner) scanTask(host Host, port uint16, payload []byte) (res
 
 				conn.Write(payload)
 
-				readLen, err = bufio.NewReader(conn).Read(responseBuffer)
-
+				responseBuffer := make([]byte, RESPONSE_MAX_LEN)
+				readLen, err = conn.Read(responseBuffer)
 				response = responseBuffer[:readLen]
-				responseBuffer = nil // free response buffer
+				responseBuffer = nil
 
 				sc.Logger.Trace().
 					Str("type", "connection.close").
