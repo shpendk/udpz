@@ -1300,6 +1300,29 @@ var (
 				"https://sergiusechel.medium.com/misconfiguration-in-ilc-gsm-gprs-devices-leaves-over-1-200-ics-devices-vulnerable-to-attacks-over-82c2d4a91561",
 			},
 		},
+		"profinet-cm": {
+			Slug:        "profinet-cm",
+			NameShort:   "PROFInet CM",
+			Name:        "PROFInet Context Manager",
+			Description: ``, // TODO
+			Ports: []uint16{
+				34964,
+			},
+			Probes: []UdpProbe{
+				{
+					Slug:        "profinet-cm:read-implicit",
+					Name:        "PROFInet Read Implicit request",
+					Service:     "profinet-cm",
+					EncodedData: "BAAIABAAAAAAAKDel2zREYJxAAEAAwFaAQCg3pds0RGCcQCgJELffduruuwdAFRDslALAWMKuv0AAAAAAQAAAAAAAAAFAP////9UAAAAAABAgAAAQAAAAECAAAAAAAAAQAAAAAAJADwBAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAD4QAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+				},
+			},
+			Tags: []string{
+				"ics",
+			},
+			References: []string{
+				"https://github.com/ITI/ICS-Security-Tools/blob/master/pcaps/profinet/profinet.pcap",
+			},
+		},
 		/*
 			"epl": {
 				Slug:        "epl",
