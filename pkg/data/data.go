@@ -764,6 +764,7 @@ var (
 				3478,
 				3470,
 				19302,
+				1990,
 			},
 			Probes: []UdpProbe{
 				{
@@ -1047,9 +1048,12 @@ var (
 			Name:        "Datagram Transport Layer Security (DTLS)",
 			Description: `Datagram Transport Layer Security (DTLS) is a protocol that provides encryption, data integrity, and authentication for applications using UDP, such as real-time voice or video. It is commonly used in secure, latency-sensitive applications like VPNs, VoIP, and online gaming, ensuring data protection without the reliability overhead of TCP.`,
 			Ports: []uint16{
+				443,  // HTTPS
+				2221, // ENIP over DTLS
 				4433,
-				443,
 				5061,
+				5349,
+				10161,
 			},
 			Probes: []UdpProbe{
 				{
