@@ -156,7 +156,7 @@ The target argument(s) can be an IP address, hostname, CIDR, or file(s) containi
 | Citrix WinFrame Remote Desktop Server                        | 1604                                      | WinFrame generic                                              |
 | Connectionless Lightweight Directory Access Protocol (CLDAP) | 389                                       | CLDAP root DSE query                                          |
 | Constrained Application Protocol (CoAP)                      | 5683, 5684                                | CoAP generic                                                  |
-| Datagram Transport Layer Security (DTLS)                     | 4433, 443, 5061                           | DTLS client hello, DTLS application data                      |
+| Datagram Transport Layer Security (DTLS)                     | 443, 2221, 4433, 5061, 5349, 10161        | DTLS client hello, DTLS application data                      |
 | Distributed Network Protocol 3 (DNP3)                        | 20000                                     | DNP3 Request Link Status                                      |
 | Domain Name System (DNS)                                     | 53                                        | DNS NS query, DNS A query (localhost), DNS version.bind query |
 | EtherNet/IP                                                  | 44818, 2222                               | EtherNet/IP list identity request                             |
@@ -181,6 +181,7 @@ The target argument(s) can be an IP address, hostname, CIDR, or file(s) containi
 | Network Time Protocol (NTP)                                  | 123                                       | NTPv4 request, NTPv2 request                                  |
 | OpenVPN (Virtual Private Networking)                         | 1194                                      | OpenVPN HARD RESET CLIENT                                     |
 | PCWorx                                                       | 1962                                      | PCWorx generic                                                |
+| PROFInet Context Manager                                     | 34964                                     | PROFInet Read Implicit request                                |
 | Quote of the Day (QOTD)                                      | 17                                        | QOTD Ping                                                     |
 | Remote Authentication Dial-In User Service (RADIUS)          | 1812, 1645, 1813                          | RADIUS generic                                                |
 | Remote Desktop Protocol (RDP) over UDP                       | 3389                                      | RDPUDP SYN request                                            |
@@ -189,7 +190,7 @@ The target argument(s) can be an IP address, hostname, CIDR, or file(s) containi
 | Routing Information Protocol (RIP)                           | 520                                       | RIPv2 request                                                 |
 | Service Location Protocol (SLP)                              | 427                                       | SLP generic                                                   |
 | Session Initiation Protocol (SIP)                            | 5060, 5061, 2543                          | SIP INVITE request                                            |
-| Session Traversal Utilities for NAT (STUN)                   | 3478, 3470, 19302                         | STUN binding request                                          |
+| Session Traversal Utilities for NAT (STUN)                   | 3478, 3470, 19302, 1990                   | STUN binding request                                          |
 | Simple Network Management Protocol (SNMP) - v1, v2c, v3      | 161, 162, 6161, 8161, 10161, 10162, 11161 | SNMPv1 get-request, SNMPv2c get-request, SNMPv3 get-request   |
 | Symantec PCAnywhere                                          | 5632                                      | PCAnywhere info                                               |
 | Trivial File Transfer Protocol (TFTP)                        | 69, 247, 6969                             | TFTP read request                                             |
