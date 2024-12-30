@@ -848,6 +848,7 @@ var (
 			Ports: []uint16{
 				1900,
 				5000,
+				62078,
 			},
 			Probes: []UdpProbe{
 				{
