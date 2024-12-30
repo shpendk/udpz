@@ -333,6 +333,8 @@ var (
 			Description: `Mitsubishi Electric MELSEC-Q Series PLCs use a proprietary network protocol for communication. The devices are used by equipment and manufacturing facilities to provide high-speed, large volume data processing and machine control.`,
 			Ports: []uint16{
 				5006,
+				5001,
+				5007,
 			},
 			Probes: []UdpProbe{
 				{
@@ -1309,6 +1311,12 @@ var (
 				34964,
 			},
 			Probes: []UdpProbe{
+				{
+					Slug:        "profinet-cm:lookup",
+					Name:        "PROFInet lookup request",
+					Service:     "profinet-cm",
+					EncodedData: "BAAgABAAAAAAAAAAAAAAAAAAAAAAAAAACIOv4R9dyRGRpAgAKxSg+m4xmvUxmqNZ9ZoIACf1xjYAAAAAAwAAAMgrAAACAP////9MAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAQCg3pds0RGCcQCgJELffQEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAA",
+				},
 				{
 					Slug:        "profinet-cm:read-implicit",
 					Name:        "PROFInet Read Implicit request",
