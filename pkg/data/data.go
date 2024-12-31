@@ -1161,6 +1161,7 @@ var (
 			Name:        "Layer 2 Tunneling Protocol (L2TP)",
 			Description: `Layer 2 Tunneling Protocol (L2TP) is a protocol used to create secure tunnels for data transmission over the internet, often in VPN setups. Operating at Layer 2, it encapsulates data to enable secure, private connections between networks, though it typically relies on IPsec to provide encryption.`,
 			Ports: []uint16{
+				1701,
 				1702,
 			},
 			Probes: []UdpProbe{
