@@ -8,6 +8,18 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Credit to @udhos -> https://gist.github.com/udhos/b468fbfd376aa0b655b6b0c539a88c03
+func nextIP(ip net.IP, inc uint) net.IP {
+	i := ip.To4()
+	v := uint(i[0])<<24 + uint(i[1])<<16 + uint(i[2])<<8 + uint(i[3])
+	v += inc
+	v3 := byte(v & 0xFF)
+	v2 := byte((v >> 8) & 0xFF)
+	v1 := byte((v >> 16) & 0xFF)
+	v0 := byte((v >> 24) & 0xFF)
+	return net.IPv4(v0, v1, v2, v3)
+}
+
 func (sc *UdpProbeScanner) ResolveTargetLine(targetSource string, hosts chan Host) (ok bool) {
 
 	sc.Logger.Trace().
@@ -53,13 +65,7 @@ func (sc *UdpProbeScanner) ResolveTargetLine(targetSource string, hosts chan Hos
 				Target: target,
 				Host:   ip,
 			}
-
-			for j := len(ip) - 1; j >= 0; j-- {
-				ip[j]++
-				if ip[j] != 0 {
-					break
-				}
-			}
+			ip = nextIP(ip, 1)
 		}
 		ok = true
 
