@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"udpz/pkg/data"
+	"udpz/internal/data"
 
 	"github.com/rs/zerolog"
 	"github.com/txthinking/socks5"

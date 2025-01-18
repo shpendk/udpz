@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"udpz/pkg/data"
-	"udpz/pkg/scan"
+	"udpz/internal/data"
+	"udpz/internal/scan"
 
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
