@@ -2,6 +2,7 @@
 
 ## High Priority
 
+- Fix NetBIOS probe for internet scans
 - "Root mode" - sprays probes and listens for inbound UDP packets
 - Load probes from JSON/YAML
 - option to scan custom ports
