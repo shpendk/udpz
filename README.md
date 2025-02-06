@@ -147,58 +147,58 @@ The target argument(s) can be an IP address, hostname, CIDR, or file(s) containi
 
 ## Supported Services
 
-| Service name                                                 | Port(s)                                   | Probe name(s)                                                 |
-| ------------------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------- |
-| Apple Remote Desktop (ARD)                                   | 3283                                      | ARD generic                                                   |
-| BitTorrent DHT                                               | 6881                                      | BitTorrent DHT ping                                           |
-| Building Automation & Control Networks (BACNet)              | 47808                                     | BACNet ReadPropertyMultiple request                           |
-| Character Generator Protocol (CharGen)                       | 19                                        | CharGen generic                                               |
-| Citrix WinFrame Remote Desktop Server                        | 1604                                      | WinFrame generic                                              |
-| Connectionless Lightweight Directory Access Protocol (CLDAP) | 389                                       | CLDAP root DSE query                                          |
-| Constrained Application Protocol (CoAP)                      | 5683, 5684                                | CoAP generic                                                  |
-| Datagram Transport Layer Security (DTLS)                     | 443, 2221, 4433, 5061, 5349, 10161        | DTLS client hello, DTLS application data                      |
-| Distributed Network Protocol 3 (DNP3)                        | 20000                                     | DNP3 Request Link Status                                      |
-| Domain Name System (DNS)                                     | 53                                        | DNS NS query, DNS A query (localhost), DNS version.bind query |
-| EtherNet/IP                                                  | 44818, 2222                               | EtherNet/IP list identity request                             |
-| Factory Interface Network Service (FINS)                     | 9600                                      | FINS DATA READ request                                        |
-| HID Discovery Protocol                                       | 4070                                      | HID Discovery generic                                         |
-| Highway Addressable Remote Transducer Industrial Protocol    | 5094                                      | HART-IP generic                                               |
-| IBM-DB2                                                      | 523                                       | DB2 GETADDR Request                                           | 
-| Intelligent Platform Management Interface (IPMI)             | 623                                       | IPMI RMCP                                                     |
-| Internet Key Exchange (IKE)                                  | 500, 4500                                 | IKE generic                                                   |
-| Kerberos                                                     | 88                                        | Kerberos AS-REQ                                               |
-| Lantronix Discovery                                          | 30718                                     | Lantronix Discovery search                                    |
-| Layer 2 Tunneling Protocol (L2TP)                            | 1702                                      | L2TP generic                                                  |
-| Memcache                                                     | 11211                                     | Memcache Version, Memcache Stats                              |
-| Microsoft Structured Query Language (SQL) Server             | 1434                                      | MSSQL ping                                                    |
-| Microsoft Windows Remote Procedure Call (MSRPC)              | 135                                       | MSRPC ncadg_ip_udp bind                                       |
-| Mitsubishi MELSEC-Q                                          | 5006                                      | MELSEC-Q Get CPU Info                                         |
-| Moxa NPort                                                   | 4800, 4001                                | Moxa NPort Enum                                               |
-| Multicast Domain Name System (mDNS)                          | 5353                                      | mDNS reverse lookup                                           |
-| Network Address Translation Port Mapping Protocol (NAT-PMP)  | 5351                                      | NAT-PMP address request                                       |
-| Network Basic Input/Output System (NetBIOS)                  | 137                                       | NetBIOS stat                                                  |
-| Network File System (NFS)                                    | 2049                                      | NFS generic                                                   |
-| Network Time Protocol (NTP)                                  | 123                                       | NTPv4 request, NTPv2 request                                  |
-| OpenVPN (Virtual Private Networking)                         | 1194                                      | OpenVPN HARD RESET CLIENT                                     |
-| PCWorx                                                       | 1962                                      | PCWorx generic                                                |
-| PROFInet Context Manager                                     | 34964                                     | PROFInet Read Implicit request                                |
-| Quote of the Day (QOTD)                                      | 17                                        | QOTD Ping                                                     |
-| Remote Authentication Dial-In User Service (RADIUS)          | 1812, 1645, 1813                          | RADIUS generic                                                |
-| Remote Desktop Protocol (RDP) over UDP                       | 3389                                      | RDPUDP SYN request                                            |
-| Remote Procedure Call (RPC)                                  | 111                                       | Portmap RPC dump                                              |
-| Routing Information Protocol next generation (RIPng)         | 521                                       | RIPng request                                                 |
-| Routing Information Protocol (RIP)                           | 520                                       | RIPv2 request                                                 |
-| Service Location Protocol (SLP)                              | 427                                       | SLP generic                                                   |
-| Session Initiation Protocol (SIP)                            | 5060, 5061, 2543                          | SIP INVITE request                                            |
-| Session Traversal Utilities for NAT (STUN)                   | 3478, 3470, 19302, 1990                   | STUN binding request                                          |
-| Simple Network Management Protocol (SNMP) - v1, v2c, v3      | 161, 162, 6161, 8161, 10161, 10162, 11161 | SNMPv1 get-request, SNMPv2c get-request, SNMPv3 get-request   |
-| Symantec PCAnywhere                                          | 5632                                      | PCAnywhere info                                               |
-| Trivial File Transfer Protocol (TFTP)                        | 69, 247, 6969                             | TFTP read request                                             |
-| Ubiquiti Networks AirControl Management Discovery Protocol   | 10001                                     | Ubiquiti discover V1, Ubiquiti discover V2                    |
-| Universal Plug and Play (UPnP)                               | 1900, 5000                                | UPnP search                                                   |
-| VxWorks Wind Debug Agent ONCRPC                              | 17185                                     | WDBRPC info                                                   |
-| Web Services Discovery (WSD)                                 | 3702                                      | WSD discovery, WSD blank SOAP                                 |
-| X Display Manager Control Protocol (XDMCP)                   | 177                                       | XDMCP query                                                   |
+| Service name | Port(s) | Probes(s) |
+| -------------| ------- | ------------- |
+| Apple Remote Desktop (ARD) | 3283 | ard:generic |
+| Building Automation & Control Networks (BACNet) | 47808 | bacnet:readpropertymultiple |
+| BitTorrent Distributed Hash Table (DHT) | 6881 | bittorrent:dht-ping |
+| Character Generator Protocol | 19 | chargen:generic |
+| Connectionless Lightweight Directory Access Protocol (CLDAP) | 389 | cldap:rootdse |
+| Constrained Application Protocol (CoAP) | 5683, 5684 | coap:generic |
+| IBM-DB2 | 523 | db2:getaddr |
+| Distributed Network Protocol 3 (DNP3) | 20000 | dnp3:requestlinkstatus |
+| Domain Name System (DNS) | 53 | dns:ns, dns:a, dns:version |
+| Datagram Transport Layer Security (DTLS) | 443, 2221, 3391, 4433, 5061, 5349, 10161 | dtls:client-hello |
+| EtherNet/IP | 44818, 2222 | enip:list-identity |
+| Factory Interface Network Service (FINS) | 9600 | fins:data-read |
+| Highway Addressable Remote Transducer Industrial Protocol | 5094 | hart-ip:generic |
+| HID Discovery Protocol | 4070 | hid-discovery:generic |
+| Internet Key Exchange (IKE) | 500, 4500 | ike:generic |
+| Intelligent Platform Management Interface (IPMI) | 623 | ipmi:rmcp |
+| Kerberos Key Distribution Center (KDC) | 88 | kerberos:asreq |
+| Layer 2 Tunneling Protocol (L2TP) | 1701, 1702 | l2tp:generic |
+| Lantronix Discovery | 30718 | lantronix:search |
+| Multicast Domain Name System (mDNS) | 5353 | mdns:reverse |
+| Mitsubishi MELSEC-Q | 5006, 5001, 5007 | melsec-q:getcpuinfo |
+| Memcache | 11211 | memcache:version, memcache:stats |
+| Moxa NPort | 4800, 4001 | moxa-nport:enum |
+| Microsoft Windows Remote Procedure Call (MSRPC) | 135 | msrpc:ncadg-ip-udp |
+| Microsoft Structured Query Language (SQL) Server | 1434 | mssql:ping |
+| Network Address Translation Port Mapping Protocol (NAT-PMP) | 5351 | nat-pmp:address |
+| Network Basic Input/Output System (NetBIOS) | 137 | netbios:stat |
+| Network File System (NFS) | 2049 | nfs:generic |
+| Network Time Protocol (NTP) | 123 | ntp:v4, ntp:v2 |
+| OpenVPN (Virtual Private Networking) | 1194 | openvpn:hardresetclient |
+| Symantec PCAnywhere | 5632 | pca:info |
+| PCWorx | 1962 | pcworx:generic |
+| Sun Remote Procedure Call (RPC) | 111 | portmap:rpc-dump |
+| PROFInet Context Manager | 34964 | profinet-cm:lookup |
+| Quote of the Day (QOTD) | 17 | qotd:ping |
+| Remote Authentication Dial-In User Service (RADIUS) | 1812, 1645, 1813 | radius:generic |
+| Remote Desktop Protocol (RDP) over UDP | 3389 | rdp:syn |
+| Routing Information Protocol (RIP) | 520 | rip:v2 |
+| Routing Information Protocol next generation (RIPng) | 521 | ripng:request |
+| Session Initiation Protocol (SIP) | 5060, 5061, 2543 | sip:invite |
+| Service Location Protocol (SLP) | 427 | slp:generic |
+| Simple Network Management Protocol (SNMP) | 161, 162, 6161, 8161, 10161, 10162, 11161 | snmp:v1-get-request, snmp:v2c-get-request, snmp:v3-get-request |
+| Session Traversal Utilities for NAT (STUN) | 3478, 3470, 19302, 1990 | stun:bind |
+| Trivial File Transfer Protocol (TFTP) | 69, 247, 6969 | tftp:read |
+| Ubiquiti Networks AirControl Management Discovery Protocol | 10001 | ubiquiti:discover-v1, ubiquiti:discover-v2 |
+| Universal Plug and Play (UPnP) | 1900, 5000, 62078 | upnp:search |
+| VxWorks Wind Debug Agent ONCRPC | 17185 | wdbrpc:info |
+| Citrix WinFrame Remote Desktop Server | 1604 | winframe:generic |
+| Web Services Discovery (WSD) | 3702 | wsd:discovery, wsd:blank |
+| X Display Manager Control Protocol (XDMCP) | 177 | xdmcp:query |
 
 ## Inspiration / Credits
 - [Nmap](https://nmap.org/)
