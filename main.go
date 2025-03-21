@@ -1,7 +1,7 @@
 package main
 
 import (
-	"udpz/cmd"
+	"github.com/shpendk/udpz/cmd"
 )
 
 func main() {
