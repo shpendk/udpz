@@ -1,4 +1,4 @@
-module github.com/shpendk/udpz
+module udpz
 
 go 1.18
 
