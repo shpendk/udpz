@@ -1328,6 +1328,30 @@ var (
 				"https://github.com/ITI/ICS-Security-Tools/blob/master/pcaps/profinet/profinet.pcap",
 			},
 		},
+		"unknown": {
+			Slug:        "unknown",
+			NameShort:   "UNKNOWN",
+			Name:        "Unknown UDP port that sends a response",
+			Description: `Unknown UDP port that sends a response`,
+			Ports: []uint16{
+				139,
+				445,
+				502,
+				631,
+			},
+			Probes: []UdpProbe{
+				{
+					Slug:        "unkown:hello-world",
+					Name:        "Hello World",
+					Service:     "unknown",
+					EncodedData: "SGVsbG8gV29ybGQ=",
+				},
+			},
+			Tags: []string{
+			},
+			References: []string{
+			},
+		},
 		/*
 			"epl": {
 				Slug:        "epl",
